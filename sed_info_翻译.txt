@@ -96,7 +96,6 @@ File: sed.info, Node: Introduction, Next: Invoking sed, Prev: Top, Up: Top
 
 'sed' is a stream editor. A stream editor is used to perform basic text transformations on an input stream (a file or input from a pipeline). While in some ways similar to an editor which permits scripted edits (such as 'ed'), 'sed' works by making only one pass over the input(s), and is consequently more efficient. But it is 'sed''s ability to filter text in a pipeline which particularly distinguishes it from other types of editors.
 
-
 sed 是一个流编辑器。
 所谓流编辑器，是指可以一个输入流进行基本的文本转换。输入流可以是一个文件或一个管道。
 sed 允许脚本，与 ed 等类似。但 sed 的工作方式是只对输入进行一次处理，因此效率更高。

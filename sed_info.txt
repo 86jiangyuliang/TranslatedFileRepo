@@ -680,7 +680,7 @@ REPLACEMENT 中可以使用回溯引用，可以使用 '&' 表示整个 REGEXP �
     '\L'
         Turn the replacement to lowercase until a '\U' or '\E' is found,
         
-		启动转换小写开关，直到碰到 \U 或 \E
+        启动转换小写开关，直到碰到 \U 或 \E
 
     '\l'
         Turn the next character to lowercase,
@@ -690,17 +690,17 @@ REPLACEMENT 中可以使用回溯引用，可以使用 '&' 表示整个 REGEXP �
     '\U'
         Turn the replacement to uppercase until a '\L' or '\E' is found,
         
-		启动转换为大写开关，直到碰到 \L 或 \E
+        启动转换为大写开关，直到碰到 \L 或 \E
 
     '\u'
         Turn the next character to uppercase,
         
-		将下一个字符转为大写
+        将下一个字符转为大写
 
     '\E'
         Stop case conversion started by '\L' or '\U'.
         
-		关闭已启动的小写或大写开关
+        关闭已启动的小写或大写开关
         实际对 \l 或 \u 也有用，如下所述
         
     When the 'g' flag is being used, case conversion does not propagate from one occurrence of the regular expression to another. For example, when the following command is executed with 'a-b-' in pattern space:
@@ -729,7 +729,7 @@ The 's' command can be followed by zero or more of the following FLAGS:
     'g'
         Apply the replacement to _all_ matches to the REGEXP, not just the first.
         
-		对所有的 REGEXP 的匹配情况都进行替换
+        对所有的 REGEXP 的匹配情况都进行替换
         
 
     'NUMBER'
@@ -807,35 +807,35 @@ Though perhaps less frequently used than those in the previous section, some ver
     Escape sequences in TEXT are processed, so you should use '\\' in TEXT to print a single backslash.
 
     As a GNU extension, if between the 'a' and the newline there is other than a whitespace-'\' sequence, then the text of this line, starting at the first non-whitespace character after the 'a', is taken as the first line of the TEXT block. (This enables a simplification in scripting a one-line add.) This extension also works with the 'i' and 'c' commands.
-	
-	添加文本，a 表示 append。将 TEXT 部分追加到每一次执行 cycle 的末尾。
-	支持 AddressRange
-	
-	关于 TEXT 的格式：
-		每一行都要以 '\' 结尾，除了最后一行
-		支持 Escape sequences，因此想要添加 '\' 则需要跳脱。
-		也可以写在一行上为 a TEXT，如果 TEXT 是结尾则不加 '\'，如果不是结尾则还需要加 '\'。
-	
-	TEXT 的格式对于 i 和 c 命令同样适用。
-	
-	（a、i、c 命令虽然可以不作为 SCRIPT 的最后一个命令，但都不会收到 SCRIPT 中其他命令的影响，亦即无法在 SCRIPT 中设置对 TEXT 部分的编辑。）
+    
+    添加文本，a 表示 append。将 TEXT 部分追加到每一次执行 cycle 的末尾。
+    支持 AddressRange
+    
+    关于 TEXT 的格式：
+        每一行都要以 '\' 结尾，除了最后一行
+        支持 Escape sequences，因此想要添加 '\' 则需要跳脱。
+        也可以写在一行上为 a TEXT，如果 TEXT 是结尾则不加 '\'，如果不是结尾则还需要加 '\'。
+    
+    TEXT 的格式对于 i 和 c 命令同样适用。
+    
+    （a、i、c 命令虽然可以不作为 SCRIPT 的最后一个命令，但都不会收到 SCRIPT 中其他命令的影响，亦即无法在 SCRIPT 中设置对 TEXT 部分的编辑。）
 
 'i\'
 'TEXT'
     As a GNU extension, this command accepts two addresses.
 
     Immediately output the lines of text which follow this command (each but the last ending with a '\', which are removed from the output).
-	
-	也是添加文本，与 a 命令的区别是，i 表示 immediately。立刻将 TEXT 的内容输出到 OUTPUT 上。
-	支持 AddressRange
+    
+    也是添加文本，与 a 命令的区别是，i 表示 immediately。立刻将 TEXT 的内容输出到 OUTPUT 上。
+    支持 AddressRange
 
 'c\'
 'TEXT'
     Delete the lines matching the address or address-range, and output the lines of text which follow this command (each but the last ending with a '\', which are removed from the output) in place of the last line (or in place of each line, if no addresses were specified). A new cycle is started after this command is done, since the pattern space will have been deleted.
-	
-	替换文本，c 表示 change。用 TEXT 的内容替换掉原始的内容。（会先清空 pattern-space 中的内容）
-	c 命令结束后，会立刻开始下一次循环。
-	支持 AddressRange
+    
+    替换文本，c 表示 change。用 TEXT 的内容替换掉原始的内容。（会先清空 pattern-space 中的内容）
+    c 命令结束后，会立刻开始下一次循环。
+    支持 AddressRange
 
 '='
     As a GNU extension, this command accepts two addresses.
@@ -865,61 +865,61 @@ Though perhaps less frequently used than those in the previous section, some ver
     As a GNU 'sed' extension, the special value '/dev/stdin' is supported for the file name, which reads the contents of the standard input.
     
     将 FILENAME 中的全部内容读入到 OUTPUT 中，在当前执行 cycle 结束时。
-	如果 FILENAME 无法读取，相当于 FILENAME 是个空文件，不会报错。
-	支持 AddressRange。
+    如果 FILENAME 无法读取，相当于 FILENAME 是个空文件，不会报错。
+    支持 AddressRange。
     FILENAME 可以使用特殊文件 /dev/stdin，表示从 STDIN 中读取数据。
 
 'w FILENAME'
     Write the pattern space to FILENAME. As a GNU 'sed' extension, two special values of FILE-NAME are supported: '/dev/stderr', which writes the result to the standard error, and '/dev/stdout', which writes to the standard output.(1)
 
     The file will be created (or truncated) before the first input line is read; all 'w' commands (including instances of the 'w' flag on successful 's' commands) which refer to the same FILENAME are output without closing and reopening the file.
-	
-	把 pattern-sapce 中的内容写到 FILENAME 中。
-	文件不存在则会先创建文件。文件已存在则会截断。
-	支持两个特殊的 FILENAME：/dev/stderr 和 /dev/stdout
-	
+    
+    把 pattern-sapce 中的内容写到 FILENAME 中。
+    文件不存在则会先创建文件。文件已存在则会截断。
+    支持两个特殊的 FILENAME：/dev/stderr 和 /dev/stdout
+    
 'D'
     If pattern space contains no newline, start a normal new cycle as if the 'd' command was issued. Otherwise, delete text in the pattern space up to the first newline, and restart cycle with the resultant pattern space, without reading a new line of input.
-	
-	删除行。
-	与 d 命令的区别，如果 pattern-space 中有 newline，则只会删除从 pattern-space 到第一个 newline 之间的内容，然后再对 pattern-space 中剩余的内容，重新开始一个执行 cycle，并且不会从 input 中读入新行。
+    
+    删除行。
+    与 d 命令的区别，如果 pattern-space 中有 newline，则只会删除从 pattern-space 到第一个 newline 之间的内容，然后再对 pattern-space 中剩余的内容，重新开始一个执行 cycle，并且不会从 input 中读入新行。
 
 'N'
     Add a newline to the pattern space, then append the next line of input to the pattern space. If there is no more input then 'sed' exits without processing any more commands.
-	
-	向 pattern-space 中追加一行。
-	先向 pattern-space 的末尾追加一个 newline，然后再将下一行的内容追加到 newline 之后。
-	如果 INPUT 中已经没有没有数据了，则退出 sed 的执行，此时 SCRIPT 中未执行的 command 不会执行。
+    
+    向 pattern-space 中追加一行。
+    先向 pattern-space 的末尾追加一个 newline，然后再将下一行的内容追加到 newline 之后。
+    如果 INPUT 中已经没有没有数据了，则退出 sed 的执行，此时 SCRIPT 中未执行的 command 不会执行。
 
 'P'
     Print out the portion of the pattern space up to the first newline.
-	
-	打印 pattern-space 中的内容，从开头到第一个 newline。
+    
+    打印 pattern-space 中的内容，从开头到第一个 newline。
 
 'h'
     Replace the contents of the hold space with the contents of the pattern space.
-	
-	用 pattern-space 中的内容覆盖 hold-space
+    
+    用 pattern-space 中的内容覆盖 hold-space
 
 'H'
     Append a newline to the contents of the hold space, and then append the contents of the pattern space to that of the hold space.
-	
-	将 pattern-space 中的内容追加到 hold-space 中。之间会加一个 newline
+    
+    将 pattern-space 中的内容追加到 hold-space 中。之间会加一个 newline
 
 'g'
     Replace the contents of the pattern space with the contents of the hold space.
-	
-	用 hold-space 中的内容覆盖 pattern-space 
+    
+    用 hold-space 中的内容覆盖 pattern-space 
 
 'G'
     Append a newline to the contents of the pattern space, and then append the contents of the hold space to that of the pattern space.
-	
-	将 hold-space 中的内容追加到 pattern-space 末尾，中间会加一个 newline
+    
+    将 hold-space 中的内容追加到 pattern-space 末尾，中间会加一个 newline
 
 'x'
     Exchange the contents of the hold and pattern spaces.
-	
-	将 hold-space 和 pattern-space 的内容互换
+    
+    将 hold-space 和 pattern-space 的内容互换
 
 ---------- Footnotes ----------
 
@@ -962,21 +962,21 @@ These commands are specific to GNU 'sed', so you must use them with care and onl
     Note that, unlike the 'r' command, the output of the command will be printed immediately; the 'r' command instead delays the output to the end of the current cycle.
 
     让 sed 先执行 shell 命令，然后将 shell 命令的结果作输出到 OUTPUT
-	如果没有指定 COMMAND，则 sed 会认为 pattern-space 中的内容为一个 shell 命令，并执行。
-	如果指定了 COMMAND，即 e COMMAND，则 sed 会执行 COMMAND 的命令
+    如果没有指定 COMMAND，则 sed 会认为 pattern-space 中的内容为一个 shell 命令，并执行。
+    如果指定了 COMMAND，即 e COMMAND，则 sed 会执行 COMMAND 的命令
     末尾的空行会被压缩。
     COMMAND 可以包含很多行，只要在换行时使用 '\' 结尾即可，除了最后一行。
     COMMAND 中不要包含 NUL 字符。
 
 'F'
     Print out the file name of the current input file (with a trailing newline).
-	
-	输出当前的 INPUT 文件的文件名
+    
+    输出当前的 INPUT 文件的文件名
 
 'L N'
     This GNU 'sed' extension fills and joins lines in pattern space to produce output lines of (at most) N characters, like 'fmt' does; if N is omitted, the default as specified on the command line is used. This command is considered a failed experiment and unless there is enough request (which seems unlikely) will be removed in future versions.
-	（不翻译，开发者都认为没什么用，未来版本应该要删除）
-	
+    （不翻译，开发者都认为没什么用，未来版本应该要删除）
+    
 
 'Q [EXIT-CODE]'
     This command only accepts a single address.
@@ -990,55 +990,55 @@ These commands are specific to GNU 'sed', so you must use them with care and onl
         N        Read another line, silently
         g        Overwrite pattern space each time to save memory
         b eat
-	
-	退出 SCRIPT 的执行。
-	不接受 AddressRange。
-	与 q 的区别，退出时不会打印 pattern-space 中的内容。
+    
+    退出 SCRIPT 的执行。
+    不接受 AddressRange。
+    与 q 的区别，退出时不会打印 pattern-space 中的内容。
 
 
 'R FILENAME'
     Queue a line of FILENAME to be read and inserted into the output stream at the end of the current cycle, or when the next input line is read. Note that if FILENAME cannot be read, or if its end is reached, no line is appended, without any error indication.
 
     As with the 'r' command, the special value '/dev/stdin' is supported for the file name, which reads a line from the standard input.
-	
-	将 FILENAME 中的内容插入到 output 中，在当前 cycle 结束时。
+    
+    将 FILENAME 中的内容插入到 output 中，在当前 cycle 结束时。
 
-	与 r 相同，支持 /dev/stdin 当 FILENAME
-	
-	与 r 的区别：
-		r 是在每一个 cycle 的结束都插入 FILENAME 的全部内容
-		R 是根据行号插入 FILENAME 的各个行，例如对第一个 cycle 插入 FILENAME 的第一行，对第二个 cycle 插入 FILENAME 的第二行，依次类推
-	
-	注意，R 计算 cycle，是按照符合 R 的行条件的行的数量计算的，并且是按照所有的 R 的命令一起计算，并区分 FILENAME 来计算行号
-	例如：
-		1. 一个 SCRIPT 中有两个 R 命令并且指向了同一个 FILENAME，则每执行一次 R，则 FILENAME 的行号加一
-		2. 一个 SCRIPT 中又两个 R 命令，但指向了不同的 FILENAME，则只有 FILENAME 对应的 R 命令执行过一次后，此 FILENAME 的行号才会加一。
-	
+    与 r 相同，支持 /dev/stdin 当 FILENAME
+    
+    与 r 的区别：
+        r 是在每一个 cycle 的结束都插入 FILENAME 的全部内容
+        R 是根据行号插入 FILENAME 的各个行，例如对第一个 cycle 插入 FILENAME 的第一行，对第二个 cycle 插入 FILENAME 的第二行，依次类推
+    
+    注意，R 计算 cycle，是按照符合 R 的行条件的行的数量计算的，并且是按照所有的 R 的命令一起计算，并区分 FILENAME 来计算行号
+    例如：
+        1. 一个 SCRIPT 中有两个 R 命令并且指向了同一个 FILENAME，则每执行一次 R，则 FILENAME 的行号加一
+        2. 一个 SCRIPT 中又两个 R 命令，但指向了不同的 FILENAME，则只有 FILENAME 对应的 R 命令执行过一次后，此 FILENAME 的行号才会加一。
+    
 'T LABEL'
     Branch to LABEL only if there have been no successful 's'ubstitutions since the last input line was read or conditional branch was taken. The LABEL may be omitted, in which case the next cycle is started.
-	
-	（不翻译，与 sed 分支有关）
+    
+    （不翻译，与 sed 分支有关）
 
 'v [VERSION]'
     This command does nothing, but makes 'sed' fail if GNU 'sed' extensions are not supported, simply because other versions of 'sed' do not implement it. In addition, you can specify the version of 'sed' that your script requires, such as '4.0.5'. The default is '4.0' because that is the first version that implemented this command.
 
     This command enables all GNU extensions even if 'POSIXLY_CORRECT' is set in the environment.
-	
-	注意，不是打印版本信息，而是检查 sed 是否支持 GNU 'sed' extensions。
-	可以手动指定版本号，默认为 4.0。
+    
+    注意，不是打印版本信息，而是检查 sed 是否支持 GNU 'sed' extensions。
+    可以手动指定版本号，默认为 4.0。
 
 
 'W FILENAME'
     Write to the given filename the portion of the pattern space up to the first newline. Everything said under the 'w' command about file handling holds here too.
-	
-	将 pattern-space 中的内容写入到 FILENAME 中。
-	与 w 的区别，只会写 pattern-space 中从开头到第一个 newline。
-	
+    
+    将 pattern-space 中的内容写入到 FILENAME 中。
+    与 w 的区别，只会写 pattern-space 中从开头到第一个 newline。
+    
 
 'z'
     This command empties the content of pattern space. It is usually the same as 's/.*//', but is more efficient and works in the presence of invalid multibyte sequences in the input stream. POSIX mandates that such sequences are _not_ matched by '.', so that there is no portable way to clear 'sed''s buffers in the middle of the script in most multibyte locales (including UTF-8 locales).
-	
-	清空 pattern-space 的内容。
+    
+    清空 pattern-space 的内容。
 
 
 3.9 GNU Extensions for Escapes in Regular Expressions

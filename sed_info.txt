@@ -1,0 +1,2212 @@
+sed, a stream editor
+********************
+File: sed.info, Node: Top, Next: Introduction, Up: (dir)
+
+This file documents version 4.2.2 of GNU 'sed', a stream editor.
+
+Copyright (C) 1998, 1999, 2001, 2002, 2003, 2004 Free Software Foundation, Inc.
+
+This document is released under the terms of the GNU Free Documentation License as published by the Free Software Foundation; either version 1.1, or (at your option) any later version.
+
+You should have received a copy of the GNU Free Documentation License along with GNU 'sed'; see the file 'COPYING.DOC'. If not, write to the Free Software Foundation, 59 Temple Place - Suite 330, Boston, MA 02110-1301, USA.
+
+There are no Cover Texts and no Invariant Sections; this text, along with its equivalent in the printed manual, constitutes the Title Page.
+
+* Menu:
+
+* 1 Introduction::                    Introduction
+* 2 Invoking sed::                    Invocation（如何调用 sed，以及 sed 的一些 OPTION）
+* 3 sed Programs::                    'sed' programs（关于 sed 脚本的具体语法）
+*     3.1 Execution Cycle::           How 'sed' works（关于 sed 的执行循环）
+*     3.2 Addresses::                 Selecting lines with 'sed'（关于sed 的行定位 Addressing 语法）
+        'NUMBER'
+        'FIRST~STEP'
+        '$'
+        '/REGEXP/'
+        '\%REGEXP%'
+        '/REGEXP/I'
+        '\%REGEXP%I'
+        '/REGEXP/M'
+        '\%REGEXP%M'
+        Address range
+        '0,/REGEXP/'
+        'ADDR1,+N'
+        'ADDR1,~N'
+*     3.3 Regular Expressions::       Overview of regular expression syntax，
+        'CHAR'
+        '*'
+        '\+'
+        '\?'
+        '\{I\}'
+        '\{I,J\}'
+        '\{I,\}'
+        '\(REGEXP\)'
+        '.'
+        '^'
+        '$'
+        '[LIST]'
+        '[^LIST]'
+        'REGEXP1\|REGEXP2'
+        'REGEXP1REGEXP2'
+        '\DIGIT'
+        '\n'
+        '\CHAR'
+*     3.4 Common Commands::           Often used commands（sed 的一些常用命令）
+        '#'
+        'q [EXIT-CODE]'
+        'd'
+        'p'
+        'n'
+        '{ COMMANDS }'
+*     3.5 The "s" Command::           sed's Swiss Army Knife（sed 最常用的命令，内容替换）
+*     3.6 Other Commands::            Less frequently used commands（一些不太常用的命令）
+*     3.7 Programming Commands::      Commands for 'sed' gurus（不翻译，awk 和 perl 的功能更强大，gurus 表示高手）
+*     3.8 Extended Commands::         Commands specific of GNU 'sed'（一些更不常用的命令）
+*     3.9 Escapes::                   Specifying special characters（不翻译，没有意义）
+（从此章向下不翻译，没有意义）
+* 4 Examples::                        Some sample scripts
+*     4.1 Centering lines::
+*     4.2 Increment a number::
+*     4.3 Rename files to lower case::
+*     4.4 Print bash environment::
+*     4.5 Reverse chars of lines::
+*     4.6 tac::                           Reverse lines of files
+*     4.7 cat -n::                        Numbering lines
+*     4.8 cat -b::                        Numbering non-blank lines
+*     4.9 wc -c::                         Counting chars
+*     4.10 wc -w::                        Counting words
+*     4.11 wc -l::                        Counting lines
+*     4.12 head::                         Printing the first lines
+*     4.13 tail::                         Printing the last lines
+*     4.14 uniq::                         Make duplicate lines unique
+*     4.15 uniq -d::                      Print duplicated lines of input
+*     4.16 uniq -u::                      Remove all duplicated lines
+*     4.17 cat -s::                       Squeezing blank lines
+* 5 Limitations::                     Limitations and (non-)limitations of GNU 'sed'
+* 6 Other Resources::                 Other resources for learning about 'sed'
+* 7 Reporting Bugs::                  Reporting bugs
+* Appendix A : Extended regexps::     'egrep'-style regular expressions
+* Concept Index::                     A menu with all the topics in this manual.
+* Command and Option Index::          A menu with all 'sed' commands and command-line options.
+
+
+1 Introduction
+**************
+File: sed.info, Node: Introduction, Next: Invoking sed, Prev: Top, Up: Top
+
+'sed' is a stream editor. A stream editor is used to perform basic text transformations on an input stream (a file or input from a pipeline). While in some ways similar to an editor which permits scripted edits (such as 'ed'), 'sed' works by making only one pass over the input(s), and is consequently more efficient. But it is 'sed''s ability to filter text in a pipeline which particularly distinguishes it from other types of editors.
+
+
+sed 是一个流编辑器。
+所谓流编辑器，是指可以一个输入流进行基本的文本转换。输入流可以是一个文件或一个管道。
+sed 允许脚本，与 ed 等类似。但 sed 的工作方式是只对输入进行一次处理，因此效率更高。
+此外 sed 可以在管道中过滤文本，此为 sed 与其他类型的编辑器主要区别。
+
+
+2 Invocation
+************
+File: sed.info, Node: Invoking sed, Next: sed Programs, Prev: Introduction, Up: Top
+
+Normally 'sed' is invoked like this:
+通常，调用 sed 的方式如下：
+
+    sed <SCRIPT> <INPUTFILE>...
+    
+The full format for invoking 'sed' is:
+而完整的调用格式如下：
+
+    sed <OPTIONS>... [<SCRIPT>] [<INPUTFILE>...]
+    
+If you do not specify INPUTFILE, or if INPUTFILE is '-', 'sed' filters the contents of the standard input. The SCRIPT is actually the first non-option parameter, which 'sed' specially considers a script and not an input file if (and only if) none of the other OPTIONS specifies a script to be executed, that is if neither of the '-e' and '-f' options is specified.
+
+
+如果省略 INPUTFILE，或者 INPUTFILE 是一个 '-'，则表示对 STDIN 做操作。
+sed 会将第一个非 OPTION 的参数视为 SCRIPT。
+如果 sed 加了 -e 或者 -f 选项，则第一个非 OPTION 的参数会被视为 INPUTFILE。
+
+'sed' may be invoked with the following command-line options:
+以下为 sed 的 OPTION
+
+    '--version'
+    
+        Print out the version of 'sed' that is being run and a copyright notice, then exit.
+        打印 sed 的版本信息、版权信息
+
+    '--help'
+        Print a usage message briefly summarizing these command-line options and the bug-reporting address, then exit.
+        打印 sed 的帮助信息
+
+    '-n'
+    '--quiet'
+    '--silent'
+        By default, 'sed' prints out the pattern space at the end of each cycle through the script (*note How 'sed' works: Execution Cycle.). These options disable this automatic printing, and 'sed' only produces output when explicitly told to via the 'p' command.
+        默认情况下，sed 会在每次执行循环结束后，打印 pattern space 中的信息。
+        指定了 -n 选项后，就不会自动打印了。此时，只能通过 p 命令来打印。
+
+    '-e SCRIPT'
+    '--expression=SCRIPT'
+        Add the commands in SCRIPT to the set of commands to be run while processing the input.
+        将 SCRIPT 中的命令添加到命令列表中
+        SCRIPT 表示手动指定的命令
+
+    '-f SCRIPT-FILE'
+    '--file=SCRIPT-FILE'
+        Add the commands contained in the file SCRIPT-FILE to the set of commands to be run while processing the input.
+        将 SCRIPT-FILE 中的内容添加到命令列表中
+        
+
+    '-i[SUFFIX]'
+    '--in-place[=SUFFIX]'
+        This option specifies that files are to be edited in-place. GNU 'sed' does this by creating a temporary file and sending output to this file rather than to the standard output.(1).
+
+        This option implies '-s'.
+
+        When the end of the file is reached, the temporary file is renamed to the output file's original name. The extension, if supplied, is used to modify the name of the old file before renaming the temporary file, thereby making a backup copy(2)).
+
+        This rule is followed: if the extension doesn't contain a '*', then it is appended to the end of the current filename as a suffix; if the extension does contain one or more '*' characters, then _each_ asterisk is replaced with the current filename. This allows you to add a prefix to the backup file, instead of (or in addition to) a suffix, or even to place backup copies of the original files into another directory (provided the directory already exists).
+
+        If no extension is supplied, the original file is overwritten without making a backup.
+        
+        指定 sed 直接修改原文件。
+        -i 选项默认 -s 选项，即如果同时修改多个 INPUT 文件，则单独处理每一个 INPUT 文件。
+        
+        注意，-i 和 SUFFIX 之间没有空格。
+        如果没有指定 SUFFIX，则直接原地修改，原始文件丢失。
+        如果指定了 SUFFIX，则原始文件按照加 SUFFIX 作为备份文件。
+        如果 SUFFIX 中包含 *，则 * 会被替换为 filename，这样就实现了添加 prefix，甚至可以将备份文件保存到其他目录，前提是目录已经创建。
+        
+        工作方式为，先创建一个临时文件，将 output 输出到此文件中，而不是输出到 STDOUT。然后对临时文件改名为原始文件名。
+
+    '-l N'
+    '--line-length=N'
+        Specify the default line-wrap length for the 'l' command. A length of 0 (zero) means to never wrap long lines. If not specified, it is taken to be 70.
+        
+        指定 l command 的 wrap 宽度。默认为 70。0 表示不 wrap。
+
+    '--posix'
+        GNU 'sed' includes several extensions to POSIX sed. In order to simplify writing portable scripts, this option disables all the extensions that this manual documents, including additional commands. Most of the extensions accept 'sed' programs that are outside the syntax mandated by POSIX, but some of them (such as the behavior of the 'N' command described in *note Reporting Bugs::) actually violate the standard. If you want to disable only the latter kind of extension, you can set the 'POSIXLY_CORRECT' variable to a non-empty value.
+        （不翻译，与 posix sed 有关）
+        
+    '-b'
+    '--binary'
+        This option is available on every platform, but is only effective where the operating system makes a distinction between text files and binary files. When such a distinction is made--as is the case for MS-DOS, Windows, Cygwin--text files are composed of lines separated by a carriage return _and_ a line feed character, and 'sed' does not see the ending CR. When this option is specified, 'sed' will open input files in binary mode, thus not requesting this special processing and considering lines to end at a line feed.
+        （不翻译，与 windows 的 CRLF 有关）
+        
+
+    '--follow-symlinks'
+        This option is available only on platforms that support symbolic links and has an effect only if option '-i' is specified. In this case, if the file that is specified on the command line is a symbolic link, 'sed' will follow the link and edit the ultimate destination of the link. The default behavior is to break the symbolic link, so that the link destination will not be modified.
+        
+        只在指定了 -i 之后才生效。
+        对于软链接，修改实际文件。
+
+    '-r'
+    '--regexp-extended'
+        Use extended regular expressions rather than basic regular expressions. Extended regexps are those that 'egrep' accepts; they can be clearer because they usually have less backslashes, but are a GNU extension and hence scripts that use them are not portable. *Note Extended regular expressions: Extended regexps.
+        
+        使用 extended regular expressions，亦即 egrap 支持的正则。
+        优点，不用再写那么多的 \ 了，可以直接使用规范的正则表达式。
+        缺点，script 的兼容性会降低。（完全可以接受，甚至应该将 sed 别名到 sed -r）
+
+    '-s'
+    '--separate'
+        By default, 'sed' will consider the files specified on the command line as a single continuous long stream. This GNU 'sed' extension allows the user to consider them as separate files: range addresses (such as '/abc/,/def/') are not allowed to span several files, line numbers are relative to the start of each file, '$' refers to the last line of each file, and files invoked from the 'R' commands are rewound at the start of each file.
+        
+        默认情况下，sed 会将多个 INPUTFILE 合并为一个连续的长字符流。
+        加入了 -s 选项后，则表示将多个文件分开处理。
+        此时：
+            * 行范围将不可以是横跨多个文件，只能限定在每一个文件中。
+            * 行号是从每个文件的第一行开始计数
+            * $ 表示每一个 INPUTFILE 的最后一行。
+            * R 命令对于每一个 INPUTFILE 都从头开始重新计算行号。
+
+    '-u'
+    '--unbuffered'
+        Buffer both input and output as minimally as practical. (This is particularly useful if the input is coming from the likes of 'tail -f', and you wish to see the transformed output as soon as possible.)
+        （不翻译，不懂应该用在什么地方）
+
+    '-z'
+    '--null-data'
+    '--zero-terminated'
+        Treat the input as a set of lines, each terminated by a zero byte (the ASCII 'NUL' character) instead of a newline. This option can be used with commands like 'sort -z' and 'find -print0' to process arbitrary file names.
+        
+        对于输入，识别其中的 nul 字符为换行符。
+        适用于处理类似 'sort -z' 或 'find -print0' 的输出。
+        注意，如果没有特殊设定，则输出的结果依然使用 null 作为换行符。
+        
+
+If no '-e', '-f', '--expression', or '--file' options are given on the command-line, then the first non-option argument on the command line is taken to be the SCRIPT to be executed.
+
+If any command-line parameters remain after processing the above, these parameters are interpreted as the names of input files to be processed. A file name of '-' refers to the standard input stream. The standard input will be processed if no file names are specified.
+
+如果没有指定 -e 或 -f 选项，则此时，会将第一个非 OPTION 的参数视为 SCRIPT。
+反之，如果指定了 -e 或 -f 选项，则从第一个非 OPTION 参数开始，就视为 INPUTFILE。
+
+INPUTFILE 如果是 -，则表示 STDIN。
+INPUTFILE 如果没指定，也表示处理 STDIN。
+
+---------- Footnotes ----------
+(1) This applies to commands such as '=', 'a', 'c', 'i', 'l', 'p'. You can still write to the standard output by using the 'w' or 'W' commands together with the '/dev/stdout' special file
+
+如果指定了 -i 选项，sed 中的一些命令，如 '=', 'a', 'c', 'i', 'l', 'p'，也是会将结果输出到临时文件而不是 STDOUT 上。
+使用 'w' 或 'W' command 输出到 /dev/stdout 来强行在 STDOUT 上显示 pattern-space 中的内容。
+
+(2) Note that GNU 'sed' creates the backup file whether or not any output is actually changed.
+
+对于 -i 选项，如果指定了 SUFFIX，即使没有对原始文件的内容产生任何修改，依然会进行创建备份文件的过程
+
+
+3 'sed' Programs
+****************
+File: sed.info, Node: sed Programs, Next: Examples, Prev: Invoking sed, Up: Top
+
+A 'sed' program consists of one or more 'sed' commands, passed in by one or more of the '-e', '-f', '--expression', and '--file' options, or the first non-option argument if zero of these options are used. This document will refer to "the" 'sed' script; this is understood to mean the in-order catenation of all of the SCRIPTs and SCRIPT-FILEs passed in.
+
+Commands within a SCRIPT or SCRIPT-FILE can be separated by semicolons (';') or newlines (ASCII 10). Some commands, due to their syntax, cannot be followed by semicolons working as command separators and thus should be terminated with newlines or be placed at the end of a SCRIPT or SCRIPT-FILE. Commands can also be preceded with optional non-significant whitespace characters.
+
+Each 'sed' command consists of an optional address or address range, followed by a one-character command name and any additional command-specific code.
+
+
+一个 sed 程序表示一个或多个 sed command。
+sed 会按顺序执行 SCRIPT 和 SCRIPT FILE 或多个 SCRIPT FILE 中的 command。
+（按照在调用 sed 时指定的 -e 或 -f 参数的顺序）
+
+sed command 可以使用 ; 或换行来分隔。
+有一些 command 不支持 ; 来做分隔，因而只能使用换行，或者放在 script-file 的结尾处。
+command 前面是否加空格不影响
+（亦即缩进不影响 sed）
+
+每一个 sed 命令，都可以支持一个行定位 Addressing，或者行范围定位 Range Addressing，然后跟一个表示 command 的单字符，后面再跟一些更详细的代码。
+（如 3.1 中的内容，如果省略了行定位，则表示此条 command 对 INPUT 中的每一行都操作）
+（Addressing 和 command 之间有空格和没有空格，没有影响，因为 command 之前的是否加空格没影响）
+
+
+3.1 How 'sed' Works
+===================
+File: sed.info, Node: Execution Cycle, Next: Addresses, Up: sed Programs
+
+'sed' maintains two data buffers: the active _pattern_ space, and the auxiliary _hold_ space. Both are initially empty.
+
+'sed' operates by performing the following cycle on each line of input: first, 'sed' reads one line from the input stream, removes any trailing newline, and places it in the pattern space. Then commands are executed; each command can have an address associated to it: addresses are a kind of condition code, and a command is only executed if the condition is verified before the command is to be executed.
+
+When the end of the script is reached, unless the '-n' option is in use, the contents of pattern space are printed out to the output stream, adding back the trailing newline if it was removed.(1) Then the next cycle starts for the next input line.
+
+Unless special commands (like 'D') are used, the pattern space is deleted between two cycles. The hold space, on the other hand, keeps its data between cycles (see commands 'h', 'H', 'x', 'g', 'G' to move data between both buffers).
+
+
+sed 维护了两个 data-buffer：pattern space 和 hold space。
+pattern space 为主要，hold space 为辅助
+两个 buffer 初始都是空的。
+
+sed 会对 input 中的每一行，都进行如下的操作循环：
+    1. 从 input 中读取一行
+    2. 去除结尾的 newline
+    3. 将数据放在 patter space buffer 中
+    4. 对此行的内容按顺序执行全部的 command
+        - 如果一个 command 被指定了行定位或行范围，则会将行号当做一个条件，仅在行号符合所指定的范围时，才会执行此 command
+    5. 当所有的 command 都执行结束，则将此行处理后的结果，即当前 pattern-space-buffer 中的内容，加上一个结尾的 newline，打印到 output stream，通常就是 STDOUT
+        - 如果指定了 -n 选项，则不执行这一步
+    6. 清空 hold-space buffer，将 pattern-space buffer 移动到 hold-space buffer 中，然后清空 pattern-space buffer
+    7. 返回第 1 步
+
+---------- Footnotes ----------
+
+(1) Actually, if 'sed' prints a line without the terminating newline, it will nevertheless print the missing newline as soon as more text is sent to the same output stream, which gives the "least expected surprise" even though it does not make commands like 'sed -n p' exactly identical to 'cat'.
+
+
+3.2 Selecting lines with 'sed'
+==============================
+File: sed.info, Node: Addresses, Next: Regular Expressions, Prev: Execution Cycle, Up: sed Programs
+
+Addresses in a 'sed' script can be in any of the following forms:
+以下为行定位的格式
+
+    'NUMBER'
+        Specifying a line number will match only that line in the input.
+        (Note that 'sed' counts lines continuously across all input files unless '-i' or '-s' options are specified.)
+        
+        只匹配一行，指定行号。
+        如果有多个 INPUTFILE，则行号是按照所有的 INPUTFILE 进行计算的。
+
+    'FIRST~STEP'
+        This GNU extension matches every STEPth line starting with line FIRST. In particular, lines will be selected when there exists a non-negative N such that the current line-number equals FIRST + (N * STEP). Thus, to select the odd-numbered lines, one would use '1~2'; to pick every third line starting with the second, '2~3' would be used; to pick every fifth line starting with the tenth, use '10~5'; and '50~0' is just an obscure way of saying '50'.
+        
+        按照步长的方式匹配行号。
+        1~2 表示所有的奇数行号。
+        STEP 为零，相当于 'NUMBER' 方式。
+        STEM 不能为负。
+        FIRST 最小为 1。
+        FIRST 不能为 $。
+
+    '$'
+        This address matches the last line of the last file of input, or the last line of each file when the '-i' or '-s' options are specified.
+        
+        表示 INPUT 的最后一行。
+        如果指定了 -i 或 -s 选项，表示每一个 INPUTFILE 的最后一行。
+
+    '/REGEXP/'
+        This will select any line which matches the regular expression REGEXP. If REGEXP itself includes any '/' characters, each must be escaped by a backslash ('\').
+
+        The empty regular expression '//' repeats the last regular expression match (the same holds if the empty regular expression is passed to the 's' command). Note that modifiers to regular expressions are evaluated when the regular expression is compiled, thus it is invalid to specify them together with the empty regular expression.
+        
+        按照正则方式匹配行，只要某一行中的内容符合 REGEX 规定的内容，就视为行匹配成功。
+        如果 REGEX 中需要指定 / 字符，可以使用 \ 来跳脱。
+        而空正则 //，表示重复最近一次的 reg pattern。
+        正则修饰符不可以与空正则 // 一起使用。
+
+    '\%REGEXP%'
+        (The '%' may be replaced by any other single character.)
+
+        This also matches the regular expression REGEXP, but allows one to use a different delimiter than '/'. This is particularly useful if the REGEXP itself contains a lot of slashes, since it avoids the tedious escaping of every '/'. If REGEXP itself includes any delimiter characters, each must be escaped by a backslash ('\').
+        
+        与上一项的正则匹配大体相同，区别在于可以使用其他界定符。
+        特别适用于 patten 中存在大量的 / 符号的情况，可以减少 \ 跳脱的次数。
+        如果 pattern 出现界定符，可以使用 \ 来跳脱。
+        
+    '/REGEXP/I'
+    '\%REGEXP%I'
+        The 'I' modifier to regular-expression matching is a GNU extension which causes the REGEXP to be matched in a case-insensitive manner.
+        
+        正则的 I 修饰符，不区分大小写
+
+    '/REGEXP/M'
+    '\%REGEXP%M'
+        The 'M' modifier to regular-expression matching is a GNU 'sed' extension which directs GNU 'sed' to match the regular expression in 'multi-line' mode. The modifier causes '^' and '$' to match respectively (in addition to the normal behavior) the empty string after a newline, and the empty string before a newline. There are special character sequences ( \` and \' ) which always match the beginning or the end of the buffer. In addition, the period character does not match a new-line character in multi-line mode.
+        
+        正则的 M 修饰符，使用多行模式
+        （及其重要的一点，多行模式，仅在 pattern-space 中有 newline 字符时才会生效，比如提前已经有 N 命令，或者 INPUT 为 NUL 换行的数据）
+        在多行模式中：
+            . 字符不匹配 newline（sed 原始正则，. 字符是匹配 newline 的）
+            ^ 匹配 newline 之后的 empty string（sed 原始正则，^ 匹配 pattern-space 的开头）
+            $ 匹配 newline 之前的 enpty string（sed 原始正则，^ 匹配 pattern-space 的末尾）
+        
+        不论是否处于多行模式，\` 永远匹配 pattern-space 的开头，\' 永远匹配 pattern-space 的末尾
+
+If no addresses are given, then all lines are matched; if one address is given, then only lines matching that address are matched.
+
+如果没有加行定位，则表示所有的行都进行 command 操作。
+
+
+An address range can be specified by specifying two addresses separated by a comma (','). An address range matches lines starting from where the first address matches, and continues until the second address matches (inclusively).
+
+If the second address is a REGEXP, then checking for the ending match will start with the line following the line which matched the first address: a range will always span at least two lines (except of course if the input stream ends).
+
+If the second address is a NUMBER less than (or equal to) the line matching the first address, then only the one line is matched.
+
+
+所谓行范围 Address range，就是给出两个行定位 Address，之间以 , 分隔。
+在 Address1 和 Address2 之间的行，都视为匹配的行。
+如果 Address2 是一个 REGEX，则对正则的查找要从 Address1 指向的行的下一行才开始查找。因此一个行范围包含至少两行。
+如果 Address2 小于等于 Address1，则只有 Address1 的行会被匹配
+
+GNU 'sed' also supports some special two-address forms; all these are GNU extensions:
+以下 GNU sed 支持的行范围语法，需要额外说明
+
+    '0,/REGEXP/'
+        A line number of '0' can be used in an address specification like '0,/REGEXP/' so that 'sed' will try to match REGEXP in the first input line too. In other words, '0,/REGEXP/' is similar to '1,/REGEXP/', except that if ADDR2 matches the very first line of input the '0,/REGEXP/' form will consider it to end the range, whereas the '1,/REGEXP/' form will match the beginning of its range and hence make the range span up to the _second_ occurrence of the regular expression.
+
+        Note that this is the only place where the '0' address makes sense; there is no 0-th line and commands which are given the '0' address in any other way will give an error.
+        
+        从 input 的第一行开始匹配。
+        大多数情况下，'0,/REGEXP/' 与 '1,/REGEXP/' 的功能都相同，除了一个情况：如果 input 的第一行就与 REGEXP 匹配，则 '0,/REGEXP/' 会认为匹配结束，因此只输出一行；而 '1,/REGEXP/' 认为第一行与行号 1 匹配，从第二行才开始搜索 REGEX。
+            
+        此处是整个 sed 行定位中，唯一允许使用行号 0 的地方。
+
+    'ADDR1,+N'
+        Matches ADDR1 and the N lines following ADDR1.
+        
+        从 Address1 行开始，以及 Address1 之后的 N 行
+
+    'ADDR1,~N'
+        Matches ADDR1 and the lines following ADDR1 until the next line whose input line number is a multiple of N.
+        
+        从 Address1 行开始，以及 Address1 之后的 N-1 行
+
+Appending the '!' character to the end of an address specification negates the sense of the match. That is, if the '!' character follows an address range, then only lines which do _not_ match the address range will be selected. This also works for singleton addresses, and, perhaps perversely, for the null address.
+
+通过对行定位或行范围末尾加 '!' 符，表示反向选取行。
+
+
+3.3 Overview of Regular Expression Syntax
+=========================================
+File: sed.info, Node: Regular Expressions, Next: Common Commands, Prev: Addresses, Up: sed Programs
+
+To know how to use 'sed', people should understand regular expressions ("regexp" for short). A regular expression is a pattern that is matched against a subject string from left to right. Most characters are "ordinary": they stand for themselves in a pattern, and match the corresponding characters in the subject. As a trivial example, the pattern
+
+    The quick brown fox
+
+matches a portion of a subject string that is identical to itself. The power of regular expressions comes from the ability to include alternatives and repetitions in the pattern. These are encoded in the pattern by the use of "special characters", which do not stand for themselves but instead are interpreted in some special way. 
+
+（一些对于正则的简介和夸奖，没必要翻译）
+
+Here is a brief description of regular expression syntax as used in 'sed'.
+以下为 sed 使用的正则
+
+    'CHAR'
+        A single ordinary character matches itself.
+        
+        匹配字符本身
+
+    '*'
+        Matches a sequence of zero or more instances of matches for the preceding regular expression, which must be an ordinary character, a special character preceded by '\', a '.', a grouped regexp (see below), or a bracket expression. As a GNU extension, a postfixed regular expression can also be followed by '*'; for example, 'a**' is equivalent to 'a*'. POSIX 1003.1-2001 says that '*' stands for itself when it appears at the start of a regular expression or subexpression, but many nonGNU implementations do not support this and portable scripts should instead use '\*' in these contexts.
+        
+        正则 * 字符
+
+    '\+'
+        As '*', but matches one or more. It is a GNU extension.
+    '\?'
+        As '*', but only matches zero or one. It is a GNU extension.
+    '\{I\}'
+        As '*', but matches exactly I sequences (I is a decimal integer; for portability, keep it between 0 and 255 inclusive).
+    '\{I,J\}'
+        Matches between I and J, inclusive, sequences.
+    '\{I,\}'
+        Matches more than or equal to I sequences.
+        
+        sed 正则中，除了 * 以外的重复次数都需要进行跳脱
+
+    '\(REGEXP\)'
+        Groups the inner REGEXP as a whole, this is used to:
+
+        * Apply postfix operators, like '\(abcd\)*': this will search for zero or more whole sequences of 'abcd', while 'abcd*' would search for 'abc' followed by zero or more occurrences of 'd'. Note that support for '\(abcd\)*' is required by POSIX 1003.1-2001, but many non-GNU implementations do not support it and hence it is not universally portable.
+
+        * Use back references (see below).
+        
+        sed 捕捉群也需要跳脱
+
+    '.'
+        Matches any character, including newline.
+        
+        sed 正则中，. 字符可以匹配 newline。
+        （想要 . 匹配 newline，要求 pattern-space 中拥有 newline 字符，例如先 N 再匹配）
+
+    '^'
+        Matches the null string at beginning of the pattern space, i.e. what appears after the circumflex must appear at the beginning of the pattern space.
+
+        In most scripts, pattern space is initialized to the content of each line (*note How 'sed' works: Execution Cycle.). So, it is a useful simplification to think of '^#include' as matching only lines where '#include' is the first thing on line--if there are spaces before, for example, the match fails. This simplification is valid as long as the original content of pattern space is not modified, for example with an 's' command.
+
+        '^' acts as a special character only at the beginning of the regular expression or subexpression (that is, after '\(' or '\|'). Portable scripts should avoid '^' at the beginning of a subexpression, though, as POSIX allows implementations that treat '^' as an ordinary character in that context.
+        
+        匹配 pattern-space 的开头的 null string。
+        
+        与普通正则的区别，^ 只有放在 regexp 或 sub-regexp 的开头，才具有特殊意义。如果放在 regexp 的中间或末尾，则恢复其文本含义。
+        所谓 sub-regexp，是指如捕捉群中的 regexp。
+        
+        （最后一段居然建议，为了保证兼容性，尽量不要在 sub-regexp 中使用 ^ 字符，因为 POSIX 标准允许在正文中将 ^ 作为普通字符使用）
+
+    '$'
+        It is the same as '^', but refers to end of pattern space. '$' also acts as a special character only at the end of the regular expression or subexpression (that is, before '\)' or '\|'), and its use at the end of a subexpression is not portable.
+        
+        匹配 pattern-space 的开头的 null string。
+        与 ^ 字符相同，必须放在 regexp 或 sub-regexp 的末尾，才具有特殊意义。
+
+    '[LIST]'
+    '[^LIST]'
+        Matches any single character in LIST: for example, '[aeiou]' matches all vowels. A list may include sequences like 'CHAR1-CHAR2', which matches any character between (inclusive) CHAR1 and CHAR2.
+
+        A leading '^' reverses the meaning of LIST, so that it matches any single character _not_ in LIST. To include ']' in the list, make it the first character (after the '^' if needed), to include '-' in the list, make it the first or last; to include '^' put it after the first character.
+
+        The characters '$', '*', '.', '[', and '\' are normally not special within LIST. For example, '[\*]' matches either '\' or '*', because the '\' is not special here. However, strings like '[.ch.]', '[=a=]', and '[:space:]' are special within LIST and represent collating symbols, equivalence classes, and character classes, respectively, and '[' is therefore special within LIST when it is followed by '.', '=', or ':'. Also, when not in 'POSIXLY_CORRECT' mode, special escapes like '\n' and '\t' are recognized within LIST. *Note Escapes::.
+        
+        sed 正则的字符类，不需要进行跳脱。
+        支持使用 - 来省略书写
+        支持使用 ^ 来表示补集
+        如果想要指定 ] 字符，需要放在 LIST 的第一个字符，或者补集中 ^ 之后的第一个字符。
+        如果想要指定 - 字符，需要放在 LIST 的第一个字符或最后一个字符
+        如果想要指定 ^ 字符，需要放在 LIST 的第一个字符之后
+        
+        sed 正则字符类中，许多特殊字符会被恢复为普通字符，如 '$'、'*'、'.'、'['、'\'
+        因此，在 sed 正则字符类中，[\*] 表示两个字符，\ 和 *
+        不过，由于方括号表达式的存在，[ 字符如果之后为 '.'、'='、':'，则 [ 字符还是功能字符。
+        
+        如果不是 POSIXLY_CORRECT 模式，字符类中可以识别 \n、\t 等跳脱字符。
+        （一般默认不是 POSIXLY_CORRECT 模式）
+
+    'REGEXP1\|REGEXP2'
+        Matches either REGEXP1 or REGEXP2. Use parentheses to use complex alternative regular expressions. The matching process tries each alternative in turn, from left to right, and the first one that succeeds is used. It is a GNU extension.
+        
+        sed 正则的或。为 GNU extension。
+
+    'REGEXP1REGEXP2'
+        Matches the concatenation of REGEXP1 and REGEXP2. Concatenation binds more tightly than '\|', '^', and '$', but less tightly than the other regular expression operators.
+        
+        （不晓得这个他们写这个项内容的意义是什么，两个 regexp 连接在一起会变成一个大的 regexp 这不是废话吗）
+
+    '\DIGIT'
+        Matches the DIGIT-th '\(...\)' parenthesized subexpression in the regular expression. This is called a "back reference". Subexpressions are implicity numbered by counting occurrences of '\(' left-to-right.
+        
+        sed 正则的回溯引用
+
+    '\n'
+        Matches the newline character.
+        
+        匹配 newline
+
+    '\CHAR'
+        Matches CHAR, where CHAR is one of '$', '*', '.', '[', '\', or '^'. Note that the only C-like backslash sequences that you can portably assume to be interpreted are '\n' and '\\'; in particular '\t' is not portable, and matches a 't' under most implementations of 'sed', rather than a tab character.
+        
+        对特殊字符进行跳脱，包括如下字符：'$'、'*'、'.'、'['、'\'、'^'
+
+Note that the regular expression matcher is greedy, i.e., matches are attempted from left to right and, if two or more matches are possible starting at the same character, it selects the longest.
+
+sed 正则也是贪婪匹配。
+
+Examples:（不翻译）
+
+    'abcdef'
+        Matches 'abcdef'.
+
+    'a*b'
+        Matches zero or more 'a's followed by a single 'b'. For example, 'b' or 'aaaaab'.
+
+    'a\?b'
+        Matches 'b' or 'ab'.
+
+    'a\+b\+'
+        Matches one or more 'a's followed by one or more 'b's: 'ab' is the shortest possible match, but other examples are 'aaaab' or 'abbbbb' or 'aaaaaabbbbbbb'.
+
+    '.*'
+    '.\+'
+        These two both match all the characters in a string; however, the first matches every string (including the empty string), while the second matches only strings containing at least one character.
+
+    '^main.*(.*)'
+        This matches a string starting with 'main', followed by an opening and closing parenthesis. The 'n', '(' and ')' need not be adjacent.
+
+    '^#'
+        This matches a string beginning with '#'.
+
+    '\\$'
+        This matches a string ending with a single backslash. The regexp contains two backslashes for escaping.
+
+    '\$'
+        Instead, this matches a string consisting of a single dollar sign, because it is escaped.
+
+    '[a-zA-Z0-9]'
+        In the C locale, this matches any ASCII letters or digits.
+
+    '[^ tab]\+'
+        (Here 'tab' stands for a single tab character.) This matches a string of one or more characters, none of which is a space or a tab. Usually this means a word.
+
+    '^\(.*\)\n\1$'
+        This matches a string consisting of two equal substrings separated by a newline.
+
+    '.\{9\}A$'
+        This matches nine characters followed by an 'A'.
+
+    '^.\{15\}A'
+        This matches the start of a string that contains 16 characters, the last of which is an 'A'.
+
+
+3.4 Often-Used Commands
+=======================
+File: sed.info, Node: Common Commands, Next: The "s" Command, Prev: Regular Expressions, Up: sed Programs
+
+If you use 'sed' at all, you will quite likely want to know these commands.
+以下为 sed 常用命令
+
+'#'
+    [No addresses allowed.]
+
+    The '#' character begins a comment; the comment continues until the next newline.
+
+    If you are concerned about portability, be aware that some implementations of 'sed' (which are not POSIX conformant) may only support a single one-line comment, and then only when the very first character of the script is a '#'.
+
+    Warning: if the first two characters of the 'sed' script are '#n', then the '-n' (no-autoprint) option is forced. If you want to put a comment in the first line of your script and that comment begins with the letter 'n' and you do not want this behavior, then be sure to either use a capital 'N', or place at least one space before the 'n'.
+    
+    sed 的注释。
+    因为有些版本的 sed 只支持单行注释，所以推荐将注释单独写在一行。
+    
+    需要注意，sed SCRIPT FILE 的第一行如果是 #n，表示默认开启 -n 选项。
+    可以通过改为 '#N' 或 '# n' 来规避。
+    
+
+'q [EXIT-CODE]'
+    This command only accepts a single address.
+
+    Exit 'sed' without processing any more commands or input. Note that the current pattern space is printed if auto-print is not disabled with the '-n' options. The ability to return an exit code from the 'sed' script is a GNU 'sed' extension.
+    
+    退出 sed 的处理，不再继续进行任何 command 或 input。
+    如果没有指定 -n，则在退出前还是会打印 pattern-space
+    只接受 single address。
+    GNU sed extension
+
+'d'
+    Delete the pattern space; immediately start next cycle.
+    
+    清空 pattern-space 并立刻开始下一个执行循环。
+    相当于进行删除行。
+
+'p'
+    Print out the pattern space (to the standard output). This command is usually only used in conjunction with the '-n' command-line option.
+    
+    打印 pattern-space 中的内容，通常是输出到 STDOUT。
+    p 通常是与 -n 选项一起使用。
+
+'n'
+    If auto-print is not disabled, print the pattern space, then, regardless, replace the pattern space with the next line of input. If there is no more input then 'sed' exits without processing any more commands.
+    
+    将 pattern-space 中的内容打印出去，然后将下一行的 input 放到 pattern-space 中。
+    如果 input 已经没有下一行了，则结束 sed，不再处理任何额外的 command
+    如果指定了 -n，则不打印 pattern-space，直接拿下一行替换 pattern-sapce
+
+'{ COMMANDS }'
+    A group of commands may be enclosed between '{' and '}' characters. This is particularly useful when you want a group of commands to be triggered by a single address (or address-range) match.
+    
+    用来将多个命令打包。
+    常用形式：<line-address|line-range>{ COMMANDS }
+    特别适合对一个行定位进行多个操作
+
+
+3.5 The 's' Command
+===================
+File: sed.info, Node: The "s" Command, Next: Other Commands, Prev: Common Commands, Up: sed Programs
+
+The syntax of the 's' (as in substitute) command is 's/REGEXP/REPLACEMENT/FLAGS'. The '/' characters may be uniformly replaced by any other single character within any given 's' command. The '/' character (or whatever other character is used in its stead) can appear in the REGEXP or REPLACEMENT only if it is preceded by a '\' character.
+
+The 's' command is probably the most important in 'sed' and has a lot of different options. Its basic concept is simple: the 's' command attempts to match the pattern space against the supplied REGEXP; if the match is successful, then that portion of the pattern space which was matched is replaced with REPLACEMENT.
+
+
+s 命令，是 sed 重要的命令。
+s 命令的格式：s/REGEXP/REPLACEMENT/FLAGS
+格式中，'/' 符号可以特换为任何符号。
+对于任何使用的界定符，如果想要在 REGEXP 或 REPLACEMENT 中使用，则需要加 '\'
+（可以添加多个 FLAG）
+
+
+The REPLACEMENT can contain '\N' (N being a number from 1 to 9, inclusive) references, which refer to the portion of the match which is contained between the Nth '\(' and its matching '\)'. Also, the REPLACEMENT can contain unescaped '&' characters which reference the whole matched portion of the pattern space. Finally, as a GNU 'sed' extension, you can include a special sequence made of a backslash and one of the letters 'L', 'l', 'U', 'u', or 'E'. The meaning is as follows:
+
+REPLACEMENT 中可以使用回溯引用，可以使用 '&' 表示整个 REGEXP 的匹配结果。
+此外，作为一个 GNU sed extension，还支持一些额外的格式用法，在 REPLACEMENT 中进行一些大小写转换：
+
+    '\L'
+        Turn the replacement to lowercase until a '\U' or '\E' is found,
+        
+		启动转换小写开关，直到碰到 \U 或 \E
+
+    '\l'
+        Turn the next character to lowercase,
+        
+        将下一个字符转为小写
+
+    '\U'
+        Turn the replacement to uppercase until a '\L' or '\E' is found,
+        
+		启动转换为大写开关，直到碰到 \L 或 \E
+
+    '\u'
+        Turn the next character to uppercase,
+        
+		将下一个字符转为大写
+
+    '\E'
+        Stop case conversion started by '\L' or '\U'.
+        
+		关闭已启动的小写或大写开关
+        实际对 \l 或 \u 也有用，如下所述
+        
+    When the 'g' flag is being used, case conversion does not propagate from one occurrence of the regular expression to another. For example, when the following command is executed with 'a-b-' in pattern space:
+    
+        s/\(b\?\)-/x\u\1/g
+
+    the output is 'axxB'. When replacing the first '-', the '\u' sequence only affects the empty replacement of '\1'. It does not affect the 'x' character that is added to pattern space when replacing 'b-' with 'xB'.
+
+    On the other hand, '\l' and '\u' do affect the remainder of the replacement text if they are followed by an empty substitution. With 'a-b-' in pattern space, the following command:
+    
+        s/\(b\?\)-/\u\1x/g
+
+    will replace '-' with 'X' (uppercase) and 'b-' with 'Bx'. If this behavior is undesirable, you can prevent it by adding a '\E' sequence--after '\1' in this case.
+    
+    如果 s 命令的 flag 指定了 g：
+        对于 \l 和 \u，影响不会在多次替换之间蔓延，而是仅限定在当此替换范围内。
+        但，\l 和 \u 会因为回溯引用是否为 empty 而发生作用在不同的字符上的情况。可以通过在 \1 之后紧跟 \E 来避免
+
+To include a literal '\', '&', or newline in the final replacement, be sure to precede the desired '\', '&', or newline in the REPLACEMENT with a '\'.
+
+在 REPLACEMENT 中如果想要指定 '\', '&', newline 等字符，则需要跳脱
+
+The 's' command can be followed by zero or more of the following FLAGS:
+以下为 s 命令的 flag
+
+    'g'
+        Apply the replacement to _all_ matches to the REGEXP, not just the first.
+        
+		对所有的 REGEXP 的匹配情况都进行替换
+        
+
+    'NUMBER'
+        Only replace the NUMBERth match of the REGEXP.
+
+        Note: the POSIX standard does not specify what should happen when you mix the 'g' and NUMBER modifiers, and currently there is no widely agreed upon meaning across 'sed' implementations. For GNU 'sed', the interaction is defined to be: ignore matches before the NUMBERth, and then match and replace all matches from the NUMBERth on.
+        
+        仅对第 N 次匹配做替换。
+        
+        如果 Number 和 g 都出现在旗标中，gnu sed 的做法是执行 g 旗标
+
+    'p'
+        If the substitution was made, then print the new pattern space.
+        
+        如果产生了替换，则将替换后的 pattern-space 打印出来
+
+    'e'
+        This command allows one to pipe input from a shell command into pattern space. If a substitution was made, the command that is found in pattern space is executed and pattern space is replaced with its output. A trailing newline is suppressed; results are undefined if the command to be executed contains a NUL character. This is a GNU 'sed' extension.
+
+        Note: when both the 'p' and 'e' options are specified, the relative ordering of the two produces very different results. In general, 'ep' (evaluate then print) is what you want, but operating the other way round can be useful for debugging. For this reason, the current version of GNU 'sed' interprets specially the presence of 'p' options both before and after 'e', printing the pattern space before and after evaluation, while in general flags for the 's' command show their effect just once. This behavior, although documented, might change in future versions.
+        
+        间接命令执行。
+        如果发生了替换，则将特换后的 pattern-space 视为一个 linux 命令，执行这个命令，将命令的结果放到 pattern-space 中。
+        
+        注意：
+            逻辑上，e 和 p 同时使用有逻辑冲突。e 和 p 的相对先后顺序不同，处理的结果也不同
+            GNU sed 支持先 e 后 p，即先执行命令，再打印 pattern-space；也支持先 p 后 e，即先打印 pattern，再执行命令得到结果放回 pattern-space 中
+            此功能在未来的版本中可能会去除。
+
+    'w FILE-NAME'
+        If the substitution was made, then write out the result to the named file. As a GNU 'sed' extension, two special values of FILE-NAME are supported: '/dev/stderr', which writes the result to the standard error, and '/dev/stdout', which writes to the standard output.(1)
+        
+        如果发生替换，则将替换后的 pattern-space 覆盖写入到文件中。
+        支持两个特殊的文件：/dev/stderr 和 /dev/stdout
+
+    'I'
+    'i'
+        The 'I' modifier to regular-expression matching is a GNU extension which makes 'sed' match REGEXP in a case-insensitive manner.
+        
+        表示在搜索 REG 时，不区分大小写
+
+    'M'
+    'm'
+        The 'M' modifier to regular-expression matching is a GNU 'sed' extension which directs GNU 'sed' to match the regular expression in 'multi-line' mode. The modifier causes '^' and '$' to match respectively (in addition to the normal behavior) the empty string after a newline, and the empty string before a newline. There are special character sequences ('\'' and '\'') which always match the beginning or the end of the buffer. In addition, the period character does not match a new-line character in multi-line mode.
+        
+        在搜索 REGEXP 是，启用 sed 正则的多行模式。
+
+---------- Footnotes ----------
+
+(1) This is equivalent to 'p' unless the '-i' option is being used.
+
+
+3.6 Less Frequently-Used Commands
+=================================
+File: sed.info, Node: Other Commands, Next: Programming Commands, Prev: The "s" Command, Up: sed Programs
+
+Though perhaps less frequently used than those in the previous section, some very small yet useful 'sed' scripts can be built with these commands.
+以下为 sed 的一些不太常用的 command
+
+'y/SOURCE-CHARS/DEST-CHARS/'
+    (The '/' characters may be uniformly replaced by any other single character within any given 'y' command.)
+
+    Transliterate any characters in the pattern space which match any of the SOURCE-CHARS with the corresponding character in DEST-CHARS.
+
+    Instances of the '/' (or whatever other character is used in its stead), '\', or newlines can appear in the SOURCE-CHARS or DEST-CHARS lists, provide that each instance is escaped by a '\'. The SOURCE-CHARS and DEST-CHARS lists _must_ contain the same number of characters (after de-escaping).
+    
+    进行字符转换
+
+'a\'
+'TEXT'
+    As a GNU extension, this command accepts two addresses.
+
+    Queue the lines of text which follow this command (each but the last ending with a '\', which are removed from the output) to be output at the end of the current cycle, or when the next input line is read.
+
+    Escape sequences in TEXT are processed, so you should use '\\' in TEXT to print a single backslash.
+
+    As a GNU extension, if between the 'a' and the newline there is other than a whitespace-'\' sequence, then the text of this line, starting at the first non-whitespace character after the 'a', is taken as the first line of the TEXT block. (This enables a simplification in scripting a one-line add.) This extension also works with the 'i' and 'c' commands.
+	
+	添加文本，a 表示 append。将 TEXT 部分追加到每一次执行 cycle 的末尾。
+	支持 AddressRange
+	
+	关于 TEXT 的格式：
+		每一行都要以 '\' 结尾，除了最后一行
+		支持 Escape sequences，因此想要添加 '\' 则需要跳脱。
+		也可以写在一行上为 a TEXT，如果 TEXT 是结尾则不加 '\'，如果不是结尾则还需要加 '\'。
+	
+	TEXT 的格式对于 i 和 c 命令同样适用。
+	
+	（a、i、c 命令虽然可以不作为 SCRIPT 的最后一个命令，但都不会收到 SCRIPT 中其他命令的影响，亦即无法在 SCRIPT 中设置对 TEXT 部分的编辑。）
+
+'i\'
+'TEXT'
+    As a GNU extension, this command accepts two addresses.
+
+    Immediately output the lines of text which follow this command (each but the last ending with a '\', which are removed from the output).
+	
+	也是添加文本，与 a 命令的区别是，i 表示 immediately。立刻将 TEXT 的内容输出到 OUTPUT 上。
+	支持 AddressRange
+
+'c\'
+'TEXT'
+    Delete the lines matching the address or address-range, and output the lines of text which follow this command (each but the last ending with a '\', which are removed from the output) in place of the last line (or in place of each line, if no addresses were specified). A new cycle is started after this command is done, since the pattern space will have been deleted.
+	
+	替换文本，c 表示 change。用 TEXT 的内容替换掉原始的内容。（会先清空 pattern-space 中的内容）
+	c 命令结束后，会立刻开始下一次循环。
+	支持 AddressRange
+
+'='
+    As a GNU extension, this command accepts two addresses.
+
+    Print out the current input line number (with a trailing newline).
+    
+    在单独一行上输出行号
+
+'l N'
+    Print the pattern space in an unambiguous form: non-printable characters (and the '\' character) are printed in C-style escaped form; long lines are split, with a trailing '\' character to indicate the split; the end of each line is marked with a '$'.
+
+    N specifies the desired line-wrap length; a length of 0 (zero) means to never wrap long lines. If omitted, the default as specified on the command line is used. The N parameter is a GNU 'sed' extension.
+    
+    l 命令用来打印特殊字符：
+        不可打印字符会被按照 C-style 跳脱方式打印出来
+        过长的行会被切分，并且添加结尾的 '\' 字符
+        每一个行的行尾会添加 '$' 标记
+    
+    N 用来表示 wrap 的宽度，0 表示不 wrap。
+    N 参数是一个 GNU 'sed' extension。
+        
+'r FILENAME'
+    As a GNU extension, this command accepts two addresses.
+
+    Queue the contents of FILENAME to be read and inserted into the output stream at the end of the current cycle, or when the next input line is read. Note that if FILENAME cannot be read, it is treated as if it were an empty file, without any error indication.
+
+    As a GNU 'sed' extension, the special value '/dev/stdin' is supported for the file name, which reads the contents of the standard input.
+    
+    将 FILENAME 中的全部内容读入到 OUTPUT 中，在当前执行 cycle 结束时。
+	如果 FILENAME 无法读取，相当于 FILENAME 是个空文件，不会报错。
+	支持 AddressRange。
+    FILENAME 可以使用特殊文件 /dev/stdin，表示从 STDIN 中读取数据。
+
+'w FILENAME'
+    Write the pattern space to FILENAME. As a GNU 'sed' extension, two special values of FILE-NAME are supported: '/dev/stderr', which writes the result to the standard error, and '/dev/stdout', which writes to the standard output.(1)
+
+    The file will be created (or truncated) before the first input line is read; all 'w' commands (including instances of the 'w' flag on successful 's' commands) which refer to the same FILENAME are output without closing and reopening the file.
+	
+	把 pattern-sapce 中的内容写到 FILENAME 中。
+	文件不存在则会先创建文件。文件已存在则会截断。
+	支持两个特殊的 FILENAME：/dev/stderr 和 /dev/stdout
+	
+'D'
+    If pattern space contains no newline, start a normal new cycle as if the 'd' command was issued. Otherwise, delete text in the pattern space up to the first newline, and restart cycle with the resultant pattern space, without reading a new line of input.
+	
+	删除行。
+	与 d 命令的区别，如果 pattern-space 中有 newline，则只会删除从 pattern-space 到第一个 newline 之间的内容，然后再对 pattern-space 中剩余的内容，重新开始一个执行 cycle，并且不会从 input 中读入新行。
+
+'N'
+    Add a newline to the pattern space, then append the next line of input to the pattern space. If there is no more input then 'sed' exits without processing any more commands.
+	
+	向 pattern-space 中追加一行。
+	先向 pattern-space 的末尾追加一个 newline，然后再将下一行的内容追加到 newline 之后。
+	如果 INPUT 中已经没有没有数据了，则退出 sed 的执行，此时 SCRIPT 中未执行的 command 不会执行。
+
+'P'
+    Print out the portion of the pattern space up to the first newline.
+	
+	打印 pattern-space 中的内容，从开头到第一个 newline。
+
+'h'
+    Replace the contents of the hold space with the contents of the pattern space.
+	
+	用 pattern-space 中的内容覆盖 hold-space
+
+'H'
+    Append a newline to the contents of the hold space, and then append the contents of the pattern space to that of the hold space.
+	
+	将 pattern-space 中的内容追加到 hold-space 中。之间会加一个 newline
+
+'g'
+    Replace the contents of the pattern space with the contents of the hold space.
+	
+	用 hold-space 中的内容覆盖 pattern-space 
+
+'G'
+    Append a newline to the contents of the pattern space, and then append the contents of the hold space to that of the pattern space.
+	
+	将 hold-space 中的内容追加到 pattern-space 末尾，中间会加一个 newline
+
+'x'
+    Exchange the contents of the hold and pattern spaces.
+	
+	将 hold-space 和 pattern-space 的内容互换
+
+---------- Footnotes ----------
+
+(1) This is equivalent to 'p' unless the '-i' option is being used.
+
+
+3.7 Commands for 'sed' gurus
+============================
+File: sed.info, Node: Programming Commands, Next: Extended Commands, Prev: Other Commands, Up: sed Programs
+
+In most cases, use of these commands indicates that you are probably better off programming in something like 'awk' or Perl. Butoccasionally one is committed to sticking with 'sed', and these commands can enable one to write quite convoluted scripts
+
+': LABEL'
+    [No addresses allowed.]
+
+    Specify the location of LABEL for branch commands. In all other respects, a no-op.
+
+'b LABEL'
+    Unconditionally branch to LABEL. The LABEL may be omitted, in which case the next cycle is started.
+
+'t LABEL'
+    Branch to LABEL only if there has been a successful 's'ubstitution since the last input line was read or conditional branch was taken. The LABEL may be omitted, in which case the next cycle is started.
+
+
+
+3.8 Commands Specific to GNU 'sed'
+==================================
+File: sed.info, Node: Extended Commands, Next: Escapes, Prev: Programming Commands, Up: sed Programs
+
+These commands are specific to GNU 'sed', so you must use them with care and only when you are sure that hindering portability is not evil. They allow you to check for GNU 'sed' extensions or to do tasks that are required quite often, yet are unsupported by standard 'sed's.
+以下的命令，只在 GNU sed 上可用。使用前请注意。
+
+'e [COMMAND]'
+    This command allows one to pipe input from a shell command into pattern space. Without parameters, the 'e' command executes the command that is found in pattern space and replaces the pattern space with the output; a trailing newline is suppressed.
+    
+    If a parameter is specified, instead, the 'e' command interprets it as a command and sends its output to the output stream. The command can run across multiple lines, all but the last ending with a back-slash.
+    
+    In both cases, the results are undefined if the command to be executed contains a NUL character.
+    
+    Note that, unlike the 'r' command, the output of the command will be printed immediately; the 'r' command instead delays the output to the end of the current cycle.
+
+    让 sed 先执行 shell 命令，然后将 shell 命令的结果作输出到 OUTPUT
+	如果没有指定 COMMAND，则 sed 会认为 pattern-space 中的内容为一个 shell 命令，并执行。
+	如果指定了 COMMAND，即 e COMMAND，则 sed 会执行 COMMAND 的命令
+    末尾的空行会被压缩。
+    COMMAND 可以包含很多行，只要在换行时使用 '\' 结尾即可，除了最后一行。
+    COMMAND 中不要包含 NUL 字符。
+
+'F'
+    Print out the file name of the current input file (with a trailing newline).
+	
+	输出当前的 INPUT 文件的文件名
+
+'L N'
+    This GNU 'sed' extension fills and joins lines in pattern space to produce output lines of (at most) N characters, like 'fmt' does; if N is omitted, the default as specified on the command line is used. This command is considered a failed experiment and unless there is enough request (which seems unlikely) will be removed in future versions.
+	（不翻译，开发者都认为没什么用，未来版本应该要删除）
+	
+
+'Q [EXIT-CODE]'
+    This command only accepts a single address.
+
+    This command is the same as 'q', but will not print the contents of pattern space. Like 'q', it provides the ability to return an exit code to the caller.
+
+    This command can be useful because the only alternative ways to accomplish this apparently trivial function are to use the '-n' option (which can unnecessarily complicate your script) or resorting to the following snippet, which wastes time by reading the whole file without any visible effect:
+
+        :eat
+        $d        Quit silently on the last line
+        N        Read another line, silently
+        g        Overwrite pattern space each time to save memory
+        b eat
+	
+	退出 SCRIPT 的执行。
+	不接受 AddressRange。
+	与 q 的区别，退出时不会打印 pattern-space 中的内容。
+
+
+'R FILENAME'
+    Queue a line of FILENAME to be read and inserted into the output stream at the end of the current cycle, or when the next input line is read. Note that if FILENAME cannot be read, or if its end is reached, no line is appended, without any error indication.
+
+    As with the 'r' command, the special value '/dev/stdin' is supported for the file name, which reads a line from the standard input.
+	
+	将 FILENAME 中的内容插入到 output 中，在当前 cycle 结束时。
+
+	与 r 相同，支持 /dev/stdin 当 FILENAME
+	
+	与 r 的区别：
+		r 是在每一个 cycle 的结束都插入 FILENAME 的全部内容
+		R 是根据行号插入 FILENAME 的各个行，例如对第一个 cycle 插入 FILENAME 的第一行，对第二个 cycle 插入 FILENAME 的第二行，依次类推
+	
+	注意，R 计算 cycle，是按照符合 R 的行条件的行的数量计算的，并且是按照所有的 R 的命令一起计算，并区分 FILENAME 来计算行号
+	例如：
+		1. 一个 SCRIPT 中有两个 R 命令并且指向了同一个 FILENAME，则每执行一次 R，则 FILENAME 的行号加一
+		2. 一个 SCRIPT 中又两个 R 命令，但指向了不同的 FILENAME，则只有 FILENAME 对应的 R 命令执行过一次后，此 FILENAME 的行号才会加一。
+	
+'T LABEL'
+    Branch to LABEL only if there have been no successful 's'ubstitutions since the last input line was read or conditional branch was taken. The LABEL may be omitted, in which case the next cycle is started.
+	
+	（不翻译，与 sed 分支有关）
+
+'v [VERSION]'
+    This command does nothing, but makes 'sed' fail if GNU 'sed' extensions are not supported, simply because other versions of 'sed' do not implement it. In addition, you can specify the version of 'sed' that your script requires, such as '4.0.5'. The default is '4.0' because that is the first version that implemented this command.
+
+    This command enables all GNU extensions even if 'POSIXLY_CORRECT' is set in the environment.
+	
+	注意，不是打印版本信息，而是检查 sed 是否支持 GNU 'sed' extensions。
+	可以手动指定版本号，默认为 4.0。
+
+
+'W FILENAME'
+    Write to the given filename the portion of the pattern space up to the first newline. Everything said under the 'w' command about file handling holds here too.
+	
+	将 pattern-space 中的内容写入到 FILENAME 中。
+	与 w 的区别，只会写 pattern-space 中从开头到第一个 newline。
+	
+
+'z'
+    This command empties the content of pattern space. It is usually the same as 's/.*//', but is more efficient and works in the presence of invalid multibyte sequences in the input stream. POSIX mandates that such sequences are _not_ matched by '.', so that there is no portable way to clear 'sed''s buffers in the middle of the script in most multibyte locales (including UTF-8 locales).
+	
+	清空 pattern-space 的内容。
+
+
+3.9 GNU Extensions for Escapes in Regular Expressions
+=====================================================
+File: sed.info, Node: Escapes, Prev: Extended Commands, Up: sed Programs
+
+Until this chapter, we have only encountered escapes of the form '\^', which tell 'sed' not to interpret the circumflex as a special character, but rather to take it literally. For example, '\*' matches a single asterisk rather than zero or more backslashes.
+
+This chapter introduces another kind of escape(1)--that is, escapes that are applied to a character or sequence of characters that ordinarily are taken literally, and that 'sed' replaces with a special character. This provides a way of encoding non-printable characters in patterns in a visible manner. There is no restriction on the appearance of non-printing characters in a 'sed' script but when a script is being prepared in the shell or by text editing, it is usually easier to use one of the following escape sequences than the binary character it represents:
+
+The list of these escapes is:
+
+    '\a'
+        Produces or matches a BEL character, that is an "alert" (ASCII 7).
+
+    '\f'
+        Produces or matches a form feed (ASCII 12).
+
+    '\n'
+        Produces or matches a newline (ASCII 10).
+
+    '\r'
+        Produces or matches a carriage return (ASCII 13).
+
+    '\t'
+        Produces or matches a horizontal tab (ASCII 9).
+
+    '\v'
+        Produces or matches a so called "vertical tab" (ASCII 11).
+
+    '\cX'
+        Produces or matches 'CONTROL-X', where X is any character. The precise effect of '\cX' is as follows: if X is a lower case letter, it is converted to upper case. Then bit 6 of the character (hex 40) is inverted. Thus '\cz' becomes hex 1A, but '\c{' becomes hex 3B, while '\c;' becomes hex 7B.
+
+    '\dXXX'
+        Produces or matches a character whose decimal ASCII value is XXX.
+
+    '\oXXX'
+        Produces or matches a character whose octal ASCII value is XXX.
+
+    '\xXX'
+        Produces or matches a character whose hexadecimal ASCII value is XX.
+
+    '\b' (backspace) was omitted because of the conflict with the existing "word boundary" meaning.
+
+Other escapes match a particular character class and are valid only in regular expressions:
+
+    '\w'
+        Matches any "word" character. A "word" character is any letter or digit or the underscore character.
+
+    '\W'
+        Matches any "non-word" character.
+
+    '\b'
+        Matches a word boundary; that is it matches if the character to the left is a "word" character and the character to the right is a "non-word" character, or vice-versa.
+
+    '\B'
+        Matches everywhere but on a word boundary; that is it matches if the character to the left and the character to the right are either both "word" characters or both "non-word" characters.
+
+    '\`'
+        Matches only at the start of pattern space. This is different from '^' in multi-line mode.
+
+    '\''
+        Matches only at the end of pattern space. This is different from '$' in multi-line mode.
+
+---------- Footnotes ----------
+
+(1) All the escapes introduced here are GNU extensions, with the exception of '\n'. In basic regular expression mode, setting 'POSIXLY_CORRECT' disables them inside bracket expressions.
+
+（从此章向下不翻译）
+4 Some Sample Scripts
+*********************
+File: sed.info, Node: Examples, Next: Limitations, Prev: sed Programs, Up: Top
+
+Here are some 'sed' scripts to guide you in the art of mastering 'sed'.
+
+* Menu:
+
+Some exotic examples:
+* 4.1 Centering lines::
+* 4.2 Increment a number::
+* 4.3 Rename files to lower case::
+* 4.4 Print bash environment::
+* 4.5 Reverse chars of lines::
+
+Emulating standard utilities:
+* 4.6 tac::                            Reverse lines of files
+* 4.7 cat -n::                        Numbering lines
+* 4.8 cat -b::                        Numbering non-blank lines
+* 4.9 wc -c::                        Counting chars
+* 4.10 wc -w::                        Counting words
+* 4.11 wc -l::                        Counting lines
+* 4.12 head::                        Printing the first lines
+* 4.13 tail::                        Printing the last lines
+* 4.14 uniq::                        Make duplicate lines unique
+* 4.15 uniq -d::                    Print duplicated lines of input
+* 4.16 uniq -u::                    Remove all duplicated lines
+* 4.17 cat -s::                        Squeezing blank lines
+
+
+4.1 Centering Lines
+===================
+File: sed.info, Node: Centering lines, Next: Increment a number, Up: Examples
+
+This script centers all lines of a file on a 80 columns width. To change that width, the number in '\{...\}' must be replaced, and the number of added spaces also must be changed.
+
+Note how the buffer commands are used to separate parts in the regular expressions to be matched--this is a common technique.
+
+    #!/usr/bin/sed -f
+
+    # Put 80 spaces in the buffer
+    1 {
+        x
+        s/^$/        /
+        s/^.*$/&&&&&&&&/
+        x
+    }
+
+    # del leading and trailing spaces
+    y/tab/ /
+    s/^ *//
+    s/ *$//
+
+    # add a newline and 80 spaces to end of line
+    G
+
+    # keep first 81 chars (80 + a newline)
+    s/^\(.\{81\}\).*$/\1/
+
+    # \2 matches half of the spaces, which are moved to the beginning
+    s/^\(.*\)\n\(.*\)\2/\2\1/
+
+
+4.2 Increment a Number
+======================
+File: sed.info, Node: Increment a number, Next: Rename files to lower case, Prev: Centering lines, Up: Examples
+
+This script is one of a few that demonstrate how to do arithmetic in 'sed'. This is indeed possible,(1) but must be done manually.
+
+To increment one number you just add 1 to last digit, replacing it by the following digit. There is one exception: when the digit is a nine the previous digits must be also incremented until you don't have a nine.
+
+This solution by Bruno Haible is very clever and smart because it uses a single buffer; if you don't have this limitation, the algorithm used in *note Numbering lines: cat -n, is faster. It works by replacing trailing nines with an underscore, then using multiple 's' commands to increment the last digit, and then again substituting underscores with zeros.
+
+    #!/usr/bin/sed -f
+
+    /[^0-9]/ d
+
+    # replace all trailing 9s by _ (any other character except digits, could
+    # be used)
+    :d
+    s/9\(_*\)$/_\1/
+    td
+
+    # incr last digit only. The first line adds a most-significant
+    # digit of 1 if we have to add a digit.
+
+    s/^\(_*\)$/1\1/; tn
+    s/8\(_*\)$/9\1/; tn
+    s/7\(_*\)$/8\1/; tn
+    s/6\(_*\)$/7\1/; tn
+    s/5\(_*\)$/6\1/; tn
+    s/4\(_*\)$/5\1/; tn
+    s/3\(_*\)$/4\1/; tn
+    s/2\(_*\)$/3\1/; tn
+    s/1\(_*\)$/2\1/; tn
+    s/0\(_*\)$/1\1/; tn
+
+    :n
+    y/_/0/
+
+---------- Footnotes ----------
+
+(1) 'sed' guru Greg Ubben wrote an implementation of the 'dc' RPN calculator! It is distributed together with sed.
+
+
+4.3 Rename Files to Lower Case
+==============================
+File: sed.info, Node: Rename files to lower case, Next: Print bash environment, Prev: Increment a number, Up: Examples
+
+This is a pretty strange use of 'sed'. We transform text, and transform it to be shell commands, then just feed them to shell. Don't worry, even worse hacks are done when using 'sed'; I have seen a script converting the output of 'date' into a 'bc' program!
+
+The main body of this is the 'sed' script, which remaps the name from lower to upper (or vice-versa) and even checks out if the remapped name is the same as the original name. Note how the script is parameterized using shell variables and proper quoting.
+
+    #! /bin/sh
+    # rename files to lower/upper case...
+    #
+    # usage:
+    #    move-to-lower *
+    #    move-to-upper *
+    # or
+    #    move-to-lower -R .
+    #    move-to-upper -R .
+    #
+
+    help()
+    {
+            cat << eof
+    Usage: $0 [-n] [-r] [-h] files...
+
+    -n    do nothing, only see what would be done
+    -R    recursive (use find)
+    -h    this message
+    files    files to remap to lower case
+
+    Examples:
+            $0 -n *        (see if everything is ok, then...)
+            $0 *
+
+            $0 -R .
+
+    eof
+    }
+
+    apply_cmd='sh'
+    finder='echo "$@" | tr " " "\n"'
+    files_only=
+
+    while :
+    do
+        case "$1" in
+            -n) apply_cmd='cat' ;;
+            -R) finder='find "$@" -type f';;
+            -h) help ; exit 1 ;;
+            *) break ;;
+        esac
+        shift
+    done
+
+    if [ -z "$1" ]; then
+            echo Usage: $0 [-h] [-n] [-r] files...
+            exit 1
+    fi
+
+    LOWER='abcdefghijklmnopqrstuvwxyz'
+    UPPER='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+
+    case 'basename $0' in
+            *upper*) TO=$UPPER; FROM=$LOWER ;;
+            *)        FROM=$UPPER; TO=$LOWER ;;
+    esac
+
+    eval $finder | sed -n '
+
+    # remove all trailing slashes
+    s/\/*$//
+
+    # add ./ if there is no path, only a filename
+    /\//! s/^/.\//
+
+    # save path+filename
+    h
+
+    # remove path
+    s/.*\///
+
+    # do conversion only on filename
+    y/'$FROM'/'$TO'/
+
+    # now line contains original path+file, while
+    # hold space contains the new filename
+    x
+
+    # add converted file name to line, which now contains
+    # path/file-name\nconverted-file-name
+    G
+
+    # check if converted file name is equal to original file name,
+    # if it is, do not print anything
+    /^.*\/\(.*\)\n\1/b
+
+    # escape special characters for the shell
+    s/["$'\\]/\\&/g
+
+    # now, transform path/fromfile\n, into
+    # mv path/fromfile path/tofile and print it
+    s/^\(.*\/\)\(.*\)\n\(.*\)$/mv "\1\2" "\1\3"/p
+
+    ' | $apply_cmd
+
+
+4.4 Print 'bash' Environment
+============================
+File: sed.info, Node: Print bash environment, Next: Reverse chars of lines, Prev: Rename files to lower case, Up: Examples
+
+This script strips the definition of the shell functions from the output of the 'set' Bourne-shell command.
+
+    #!/bin/sh
+
+    set | sed -n '
+    :x
+
+    # if no occurrence of "=()" print and load next line
+    /=()/! { p; b; }
+    / () $/! { p; b; }
+
+    # possible start of functions section
+    # save the line in case this is a var like FOO="() "
+    h
+
+    # if the next line has a brace, we quit because
+    # nothing comes after functions
+    n
+    /^{/ q
+
+    # print the old line
+    x; p
+
+    # work on the new line now
+    x; bx
+    '
+
+
+4.5 Reverse Characters of Lines
+===============================
+File: sed.info, Node: Reverse chars of lines, Next: tac, Prev: Print bash environment, Up: Examples
+
+This script can be used to reverse the position of characters in lines. The technique moves two characters at a time, hence it is faster than more intuitive implementations.
+
+Note the 'tx' command before the definition of the label. This is often needed to reset the flag that is tested by the 't' command.
+
+Imaginative readers will find uses for this script. An example is reversing the output of 'banner'.(1)
+
+    #!/usr/bin/sed -f
+
+    /../! b
+
+    # Reverse a line. Begin embedding the line between two newlines
+    s/^.*$/\
+    &\
+    /
+
+    # Move first character at the end. The regexp matches until
+    # there are zero or one characters between the markers
+    tx
+    :x
+    s/\(\n.\)\(.*\)\(.\n\)/\3\2\1/
+    tx
+
+    # Remove the newline markers
+    s/\n//g
+
+---------- Footnotes ----------
+
+(1) This requires another script to pad the output of banner; for example:
+
+    #! /bin/sh
+
+    banner -w $1 $2 $3 $4 | sed -e :a -e '/^.\{0,'$1'\}$/ { s/$/ /; ba; }' | ~/sedscripts/reverseline.sed
+
+
+4.6 Reverse Lines of Files
+==========================
+File: sed.info, Node: tac, Next: cat -n, Prev: Reverse chars of lines, Up: Examples
+
+This one begins a series of totally useless (yet interesting) scripts emulating various Unix commands. This, in particular, is a 'tac' workalike.
+
+Note that on implementations other than GNU 'sed' this script might easily overflow internal buffers.
+
+    #!/usr/bin/sed -nf
+
+    # reverse all lines of input, i.e. first line became last, ...
+
+    # from the second line, the buffer (which contains all previous lines)
+    # is *appended* to current line, so, the order will be reversed
+    1! G
+
+    # on the last line we're done -- print everything
+    $ p
+
+    # store everything on the buffer again
+    h
+
+
+4.7 Numbering Lines
+===================
+File: sed.info, Node: cat -n, Next: cat -b, Prev: tac, Up: Examples
+
+This script replaces 'cat -n'; in fact it formats its output exactly like GNU 'cat' does.
+
+Of course this is completely useless and for two reasons: first, because somebody else did it in C, second, because the following Bourne-shell script could be used for the same purpose and would be much faster:
+
+    #! /bin/sh
+    sed -e "=" $@ | sed -e '
+        s/^/    /
+        N
+        s/^ *\(......\)\n/\1 /
+    '
+
+It uses 'sed' to print the line number, then groups lines two by two using 'N'. Of course, this script does not teach as much as the one presented below.
+
+The algorithm used for incrementing uses both buffers, so the line is printed as soon as possible and then discarded. The number is split so that changing digits go in a buffer and unchanged ones go in the other; the changed digits are modified in a single step (using a 'y' command). The line number for the next line is then composed and stored in the hold space, to be used in the next iteration.
+
+    #!/usr/bin/sed -nf
+
+    # Prime the pump on the first line
+    x
+    /^$/ s/^.*$/1/
+
+    # Add the correct line number before the pattern
+    G
+    h
+
+    # Format it and print it
+    s/^/    /
+    s/^ *\(......\)\n/\1 /p
+
+    # Get the line number from hold space; add a zero
+    # if we're going to add a digit on the next line
+    g
+    s/\n.*$//
+    /^9*$/ s/^/0/
+
+    # separate changing/unchanged digits with an x
+    s/.9*$/x&/
+
+    # keep changing digits in hold space
+    h
+    s/^.*x//
+    y/0123456789/1234567890/
+    x
+
+    # keep unchanged digits in pattern space
+    s/x.*$//
+
+    # compose the new number, remove the newline implicitly added by G
+    G
+    s/\n//
+    h
+
+
+4.8 Numbering Non-blank Lines
+=============================
+File: sed.info, Node: cat -b, Next: wc -c, Prev: cat -n, Up: Examples
+
+Emulating 'cat -b' is almost the same as 'cat -n'--we only have to select which lines are to be numbered and which are not.
+
+The part that is common to this script and the previous one is not commented to show how important it is to comment 'sed' scripts properly...
+
+    #!/usr/bin/sed -nf
+
+    /^$/ {
+        p
+        b
+    }
+
+    # Same as cat -n from now
+    x
+    /^$/ s/^.*$/1/
+    G
+    h
+    s/^/    /
+    s/^ *\(......\)\n/\1 /p
+    x
+    s/\n.*$//
+    /^9*$/ s/^/0/
+    s/.9*$/x&/
+    h
+    s/^.*x//
+    y/0123456789/1234567890/
+    x
+    s/x.*$//
+    G
+    s/\n//
+    h
+
+
+4.9 Counting Characters
+=======================
+File: sed.info, Node: wc -c, Next: wc -w, Prev: cat -b, Up: Examples
+
+This script shows another way to do arithmetic with 'sed'. In this case we have to add possibly large numbers, so implementing this by successive increments would not be feasible (and possibly even more complicated to contrive than this script).
+
+The approach is to map numbers to letters, kind of an abacus implemented with 'sed'. 'a's are units, 'b's are tens and so on: we simply add the number of characters on the current line as units, and then propagate the carry to tens, hundreds, and so on.
+
+As usual, running totals are kept in hold space.
+
+On the last line, we convert the abacus form back to decimal. For the sake of variety, this is done with a loop rather than with some 80 's' commands(1): first we convert units, removing 'a's from the number; then we rotate letters so that tens become 'a's, and so on until no more letters remain.
+
+    #!/usr/bin/sed -nf
+
+    # Add n+1 a's to hold space (+1 is for the newline)
+    s/./a/g
+    H
+    x
+    s/\n/a/
+
+    # Do the carry. The t's and b's are not necessary,
+    # but they do speed up the thing
+    t a
+    : a; s/aaaaaaaaaa/b/g; t b; b done
+    : b; s/bbbbbbbbbb/c/g; t c; b done
+    : c; s/cccccccccc/d/g; t d; b done
+    : d; s/dddddddddd/e/g; t e; b done
+    : e; s/eeeeeeeeee/f/g; t f; b done
+    : f; s/ffffffffff/g/g; t g; b done
+    : g; s/gggggggggg/h/g; t h; b done
+    : h; s/hhhhhhhhhh//g
+
+    : done
+    $! {
+        h
+        b
+    }
+
+    # On the last line, convert back to decimal
+
+    : loop
+    /a/! s/[b-h]*/&0/
+    s/aaaaaaaaa/9/
+    s/aaaaaaaa/8/
+    s/aaaaaaa/7/
+    s/aaaaaa/6/
+    s/aaaaa/5/
+    s/aaaa/4/
+    s/aaa/3/
+    s/aa/2/
+    s/a/1/
+
+    : next
+    y/bcdefgh/abcdefg/
+    /[a-h]/ b loop
+    p
+
+---------- Footnotes ----------
+
+(1) Some implementations have a limit of 199 commands per script
+
+
+4.10 Counting Words
+===================
+File: sed.info, Node: wc -w, Next: wc -l, Prev: wc -c, Up: Examples
+
+This script is almost the same as the previous one, once each of the words on the line is converted to a single 'a' (in the previous script each letter was changed to an 'a').
+
+It is interesting that real 'wc' programs have optimized loops for 'wc -c', so they are much slower at counting words rather than characters. This script's bottleneck, instead, is arithmetic, and hence the word-counting one is faster (it has to manage smaller numbers).
+
+Again, the common parts are not commented to show the importance of commenting 'sed' scripts.
+
+    #!/usr/bin/sed -nf
+
+    # Convert words to a's
+    s/[ tab][ tab]*/ /g
+    s/^/ /
+    s/ [^ ][^ ]*/a /g
+    s/ //g
+
+    # Append them to hold space
+    H
+    x
+    s/\n//
+
+    # From here on it is the same as in wc -c.
+    /aaaaaaaaaa/! bx;    s/aaaaaaaaaa/b/g
+    /bbbbbbbbbb/! bx;    s/bbbbbbbbbb/c/g
+    /cccccccccc/! bx;    s/cccccccccc/d/g
+    /dddddddddd/! bx;    s/dddddddddd/e/g
+    /eeeeeeeeee/! bx;    s/eeeeeeeeee/f/g
+    /ffffffffff/! bx;    s/ffffffffff/g/g
+    /gggggggggg/! bx;    s/gggggggggg/h/g
+    s/hhhhhhhhhh//g
+    :x
+    $! { h; b; }
+    :y
+    /a/! s/[b-h]*/&0/
+    s/aaaaaaaaa/9/
+    s/aaaaaaaa/8/
+    s/aaaaaaa/7/
+    s/aaaaaa/6/
+    s/aaaaa/5/
+    s/aaaa/4/
+    s/aaa/3/
+    s/aa/2/
+    s/a/1/
+    y/bcdefgh/abcdefg/
+    /[a-h]/ by
+    p
+
+
+4.11 Counting Lines
+===================
+File: sed.info, Node: wc -l, Next: head, Prev: wc -w, Up: Examples
+
+No strange things are done now, because 'sed' gives us 'wc -l' functionality for free!!! Look:
+
+    #!/usr/bin/sed -nf
+    $=
+
+
+4.12 Printing the First Lines
+=============================
+File: sed.info, Node: head, Next: tail, Prev: wc -l, Up: Examples
+
+This script is probably the simplest useful 'sed' script. It displays the first 10 lines of input; the number of displayed lines is right before the 'q' command.
+
+    #!/usr/bin/sed -f
+    10q
+
+
+4.13 Printing the Last Lines
+============================
+File: sed.info, Node: tail, Next: uniq, Prev: head, Up: Examples
+
+Printing the last N lines rather than the first is more complex but indeed possible. N is encoded in the second line, before the bang character.
+
+This script is similar to the 'tac' script in that it keeps the final output in the hold space and prints it at the end:
+
+    #!/usr/bin/sed -nf
+
+    1! {; H; g; }
+    1,10 !s/[^\n]*\n//
+    $p
+    h
+
+Mainly, the scripts keeps a window of 10 lines and slides it by adding a line and deleting the oldest (the substitution command on the second line works like a 'D' command but does not restart the loop).
+
+The "sliding window" technique is a very powerful way to write efficient and complex 'sed' scripts, because commands like 'P' would require a lot of work if implemented manually.
+
+To introduce the technique, which is fully demonstrated in the rest of this chapter and is based on the 'N', 'P' and 'D' commands, here is an implementation of 'tail' using a simple "sliding window."
+
+This looks complicated but in fact the working is the same as the last script: after we have kicked in the appropriate number of lines, however, we stop using the hold space to keep inter-line state, and instead use 'N' and 'D' to slide pattern space by one line:
+
+    #!/usr/bin/sed -f
+
+    1h
+    2,10 {; H; g; }
+    $q
+    1,9d
+    N
+    D
+
+Note how the first, second and fourth line are inactive after the first ten lines of input. After that, all the script does is: exiting on the last line of input, appending the next input line to pattern space, and removing the first line.
+
+
+4.14 Make Duplicate Lines Unique
+================================
+File: sed.info, Node: uniq, Next: uniq -d, Prev: tail, Up: Examples
+
+This is an example of the art of using the 'N', 'P' and 'D' commands, probably the most difficult to master.
+
+    #!/usr/bin/sed -f
+    h
+
+    :b
+    # On the last line, print and exit
+    $b
+    N
+    /^\(.*\)\n\1$/ {
+        # The two lines are identical. Undo the effect of
+        # the n command.
+        g
+        bb
+    }
+
+    # If the 'N' command had added the last line, print and exit
+    $b
+
+    # The lines are different; print the first and go
+    # back working on the second.
+    P
+    D
+
+As you can see, we mantain a 2-line window using 'P' and 'D'. This technique is often used in advanced 'sed' scripts.
+
+
+4.15 Print Duplicated Lines of Input
+====================================
+File: sed.info, Node: uniq -d, Next: uniq -u, Prev: uniq, Up: Examples
+
+This script prints only duplicated lines, like 'uniq -d'.
+
+    #!/usr/bin/sed -nf
+
+    $b
+    N
+    /^\(.*\)\n\1$/ {
+        # Print the first of the duplicated lines
+        s/.*\n//
+        p
+
+        # Loop until we get a different line
+        :b
+        $b
+        N
+        /^\(.*\)\n\1$/ {
+            s/.*\n//
+            bb
+        }
+    }
+
+    # The last line cannot be followed by duplicates
+    $b
+
+    # Found a different one. Leave it alone in the pattern space
+    # and go back to the top, hunting its duplicates
+    D
+
+
+4.16 Remove All Duplicated Lines
+================================
+File: sed.info, Node: uniq -u, Next: cat -s, Prev: uniq -d, Up: Examples
+
+This script prints only unique lines, like 'uniq -u'.
+
+    #!/usr/bin/sed -f
+
+    # Search for a duplicate line --- until that, print what you find.
+    $b
+    N
+    /^\(.*\)\n\1$/ ! {
+        P
+        D
+    }
+
+    :c
+    # Got two equal lines in pattern space. At the
+    # end of the file we simply exit
+    $d
+
+    # Else, we keep reading lines with 'N' until we
+    # find a different one
+    s/.*\n//
+    N
+    /^\(.*\)\n\1$/ {
+        bc
+    }
+
+    # Remove the last instance of the duplicate line
+    # and go back to the top
+    D
+
+
+4.17 Squeezing Blank Lines
+==========================
+File: sed.info, Node: cat -s, Prev: uniq -u, Up: Examples
+
+As a final example, here are three scripts, of increasing complexity and speed, that implement the same function as 'cat -s', that is squeezing blank lines.
+
+The first leaves a blank line at the beginning and end if there are some already.
+
+    #!/usr/bin/sed -f
+
+    # on empty lines, join with next
+    # Note there is a star in the regexp
+    :x
+    /^\n*$/ {
+    N
+    bx
+    }
+
+    # now, squeeze all '\n', this can be also done by:
+    # s/^\(\n\)*/\1/
+    s/\n*/\
+    /
+
+This one is a bit more complex and removes all empty lines at the beginning. It does leave a single blank line at end if one was there.
+
+    #!/usr/bin/sed -f
+
+    # delete all leading empty lines
+    1,/^./{
+    /./!d
+    }
+
+    # on an empty line we remove it and all the following
+    # empty lines, but one
+    :x
+    /./!{
+    N
+    s/^\n$//
+    tx
+    }
+
+This removes leading and trailing blank lines. It is also the fastest. Note that loops are completely done with 'n' and 'b', without relying on 'sed' to restart the the script automatically at the end of a line.
+
+    #!/usr/bin/sed -nf
+
+    # delete all (leading) blanks
+    /./!d
+
+    # get here: so there is a non empty
+    :x
+    # print it
+    p
+    # get next
+    n
+    # got chars? print it again, etc...
+    /./bx
+
+    # no, don't have chars: got an empty line
+    :z
+    # get next, if last line we finish here so no trailing
+    # empty lines are written
+    n
+    # also empty? then ignore it, and get next... this will
+    # remove ALL empty lines
+    /./!bz
+
+    # all empty lines were deleted/ignored, but we have a non empty. As
+    # what we want to do is to squeeze, insert a blank line artificially
+    i\
+
+    bx
+
+
+5 GNU 'sed''s Limitations and Non-limitations
+*********************************************
+File: sed.info, Node: Limitations, Next: Other Resources, Prev: Examples, Up: Top
+
+For those who want to write portable 'sed' scripts, be aware that some implementations have been known to limit line lengths (for the pattern and hold spaces) to be no more than 4000 bytes. The POSIX standard specifies that conforming 'sed' implementations shall support at least 8192 byte line lengths. GNU 'sed' has no built-in limit on line length; as long as it can 'malloc()' more (virtual) memory, you can feed or construct lines as long as you like.
+
+However, recursion is used to handle subpatterns and indefinite repetition. This means that the available stack space may limit the size of the buffer that can be processed by certain patterns.
+
+
+6 Other Resources for Learning About 'sed'
+******************************************
+File: sed.info, Node: Other Resources, Next: Reporting Bugs, Prev: Limitations, Up: Top
+
+In addition to several books that have been written about 'sed' (either specifically or as chapters in books which discuss shell programming), one can find out more about 'sed' (including suggestions of a few books) from the FAQ for the 'sed-users' mailing list, available from: 'http://sed.sourceforge.net/sedfaq.html'
+
+Also of interest are 'http://www.student.northpark.edu/pemente/sed/index.htm' and 'http://sed.sf.net/grabbag', which include 'sed' tutorials and other 'sed'-related goodies.
+
+The 'sed-users' mailing list itself maintained by Sven Guckes. To subscribe, visit 'http://groups.yahoo.com' and search for the 'sed-users' mailing list.
+
+
+7 Reporting Bugs
+****************
+File: sed.info, Node: Reporting Bugs, Next: Extended regexps, Prev: Other Resources, Up: Top
+
+Email bug reports to <bug-sed@gnu.org>. Also, please include the output of 'sed --version' in the body of your report if at all possible.
+
+Please do not send a bug report like this:
+
+    while building frobme-1.3.4
+    $ configure
+    error--> sed: file sedscr line 1: Unknown option to 's'
+
+If GNU 'sed' doesn't configure your favorite package, take a few extra minutes to identify the specific problem and make a stand-alone test case. Unlike other programs such as C compilers, making such test cases for 'sed' is quite simple.
+
+A stand-alone test case includes all the data necessary to perform the test, and the specific invocation of 'sed' that causes the problem. The smaller a stand-alone test case is, the better. A test case should not involve something as far removed from 'sed' as "try to configure frobme-1.3.4". Yes, that is in principle enough information to look for the bug, but that is not a very practical prospect.
+
+Here are a few commonly reported bugs that are not bugs.
+
+    'N' command on the last line
+        Most versions of 'sed' exit without printing anything when the 'N' command is issued on the last line of a file. GNU 'sed' prints pattern space before exiting unless of course the '-n' command switch has been specified. This choice is by design.
+
+        For example, the behavior of
+            sed N foo bar
+        would depend on whether foo has an even or an odd number of lines(1). Or, when writing a script to read the next few lines following a pattern match, traditional implementations of 'sed' would force you to write something like
+            /foo/{ $!N; $!N; $!N; $!N; $!N; $!N; $!N; $!N; $!N }
+        instead of just
+            /foo/{ N;N;N;N;N;N;N;N;N; }
+
+        In any case, the simplest workaround is to use '$d;N' in scripts that rely on the traditional behavior, or to set the 'POSIXLY_CORRECT' variable to a non-empty value.
+
+    Regex syntax clashes (problems with backslashes)
+        'sed' uses the POSIX basic regular expression syntax. According to the standard, the meaning of some escape sequences is undefined in this syntax; notable in the case of 'sed' are '\|', '\+', '\?', '\'', '\'', '\<', '\>', '\b', '\B', '\w', and '\W'.
+
+        As in all GNU programs that use POSIX basic regular expressions, 'sed' interprets these escape sequences as special characters. So, 'x\+' matches one or more occurrences of 'x'. 'abc\|def' matches either 'abc' or 'def'.
+
+        This syntax may cause problems when running scripts written for other 'sed's. Some 'sed' programs have been written with the assumption that '\|' and '\+' match the literal characters '|' and '+'. Such scripts must be modified by removing the spurious backslashes if they are to be used with modern implementations of 'sed', like GNU 'sed'.
+
+        On the other hand, some scripts use s|abc\|def||g to remove occurrences of _either_ 'abc' or 'def'. While this worked until 'sed' 4.0.x, newer versions interpret this as removing the string 'abc|def'. This is again undefined behavior according to POSIX, and this interpretation is arguably more robust: older 'sed's, for example, required that the regex matcher parsed '\/' as '/' in the common case of escaping a slash, which is again undefined behavior; the new behavior avoids this, and this is good because the regex matcher is only partially under our control.
+
+        In addition, this version of 'sed' supports several escape characters (some of which are multi-character) to insert non-printable characters in scripts ('\a', '\c', '\d', '\o', '\r', '\t', '\v', '\x'). These can cause similar problems with scripts written for other 'sed's.
+
+    '-i' clobbers read-only files
+        In short, 'sed -i' will let you delete the contents of a read-only file, and in general the '-i' option (*note Invocation: Invoking sed.) lets you clobber protected files. This is not a bug, but rather a consequence of how the Unix filesystem works.
+
+        The permissions on a file say what can happen to the data in that file, while the permissions on a directory say what can happen to the list of files in that directory. 'sed -i' will not ever open for writing a file that is already on disk. Rather, it will work on a temporary file that is finally renamed to the original name: if you rename or delete files, you're actually modifying the contents of the directory, so the operation depends on the permissions of the directory, not of the file. For this same reason, 'sed' does not let you use '-i' on a writeable file in a read-only directory, and will break hard or symbolic links when '-i' is used on such a file.
+
+    '0a' does not work (gives an error)
+        There is no line 0. 0 is a special address that is only used to treat addresses like '0,/RE/' as active when the script starts: if you write '1,/abc/d' and the first line includes the word 'abc', then that match would be ignored because address ranges must span at least two lines (barring the end of the file); but what you probably wanted is to delete every line up to the first one including 'abc', and this is obtained with '0,/abc/d'.
+
+    '[a-z]' is case insensitive
+        You are encountering problems with locales. POSIX mandates that '[a-z]' uses the current locale's collation order - in C parlance, that means using 'strcoll(3)' instead of 'strcmp(3)'. Some locales have a case-insensitive collation order, others don't.
+
+        Another problem is that '[a-z]' tries to use collation symbols. This only happens if you are on the GNU system, using GNU libc's regular expression matcher instead of compiling the one supplied with GNU sed. In a Danish locale, for example, the regular expression '^[a-z]$' matches the string 'aa', because this is a single collating symbol that comes after 'a' and before 'b'; 'll' behaves similarly in Spanish locales, or 'ij' in Dutch locales.
+
+        To work around these problems, which may cause bugs in shell scripts, set the 'LC_COLLATE' and 'LC_CTYPE' environment variables to 'C'.
+
+    's/.*//' does not clear pattern space
+        This happens if your input stream includes invalid multibyte sequences. POSIX mandates that such sequences are _not_ matched by '.', so that 's/.*//' will not clear pattern space as you would expect. In fact, there is no way to clear sed's buffers in the middle of the script in most multibyte locales (including UTF-8 locales). For this reason, GNU 'sed' provides a 'z' command (for 'zap') as an extension.
+
+        To work around these problems, which may cause bugs in shell scripts, set the 'LC_COLLATE' and 'LC_CTYPE' environment variables to 'C'.
+
+---------- Footnotes ----------
+
+(1) which is the actual "bug" that prompted the change in behavior
+
+
+Appendix A Extended regular expressions
+***************************************
+File: sed.info, Node: Extended regexps, Next: Concept Index, Prev: Reporting Bugs, Up: Top
+
+The only difference between basic and extended regular expressions is in the behavior of a few characters: '?', '+', parentheses, braces ('{}'), and '|'. While basic regular expressions require these to be escaped if you want them to behave as special characters, when using extended regular expressions you must escape them if you want them _to match a literal character_. '|' is special here because '\|' is a GNU extension - standard basic regular expressions do not provide its functionality.
+
+Examples:
+    'abc?'
+        becomes 'abc\?' when using extended regular expressions. It matches the literal string 'abc?'.
+
+    'c\+'
+        becomes 'c+' when using extended regular expressions. It matches one or more 'c's.
+
+    'a\{3,\}'
+        becomes 'a{3,}' when using extended regular expressions. It matches three or more 'a's.
+
+    '\(abc\)\{2,3\}'
+        becomes '(abc){2,3}' when using extended regular expressions. It matches either 'abcabc' or 'abcabcabc'.
+
+    '\(abc*\)\1'
+        becomes '(abc*)\1' when using extended regular expressions. Backreferences must still be escaped when using extended regular expressions.
+
+
+Concept Index
+*************
+File: sed.info, Node: Concept Index, Next: Command and Option Index, Prev: Extended regexps, Up: Top
+
+This is a general index of all issues discussed in this manual, with the exception of the 'sed' commands and command-line options.
+
+[index]
+* Menu:
+
+* 0 address:                                            Reporting Bugs.                    (line 102)
+* Additional reading about sed:                            Other Resources.                (line 6)
+* ADDR1,+N:                                                Addresses.                        (line 80)
+* ADDR1,~N:                                                Addresses.                        (line 80)
+* Address, as a regular expression:                        Addresses.                        (line 27)
+* Address, last line:                                    Addresses.                        (line 22)
+* Address, numeric:                                        Addresses.                        (line 8)
+* Addresses, in sed scripts:                            Addresses.                        (line 6)
+* Append hold space to pattern space:                    Other Commands.                    (line 125)
+* Append next input line to pattern space:                Other Commands.                    (line 105)
+* Append pattern space to hold space:                    Other Commands.                    (line 117)
+* Appending text after a line:                            Other Commands.                    (line 27)
+* Backreferences, in regular expressions:                 The "s" Command.                (line 19)
+* Branch to a label, if s/// failed:                    Extended Commands.                (line 71)
+* Branch to a label, if s/// succeeded:                 Programming Commands.            (line 22)
+* Branch to a label, unconditionally:                    Programming Commands.            (line 18)
+* Buffer spaces, pattern and hold:                        Execution Cycle.                (line 6)
+* Bugs, reporting:                                        Reporting Bugs.                    (line 6)
+* Case-insensitive matching:                            The "s" Command.                (line 112)
+* Caveat -- #n on first line:                            Common Commands.                (line 20)
+* Command groups:                                        Common Commands.                (line 50)
+* Comments, in scripts:                                    Common Commands.                (line 12)
+* Conditional branch <1>:                                Extended Commands.                (line 71)
+* Conditional branch:                                    Programming Commands.            (line 22)
+* Copy hold space into pattern space:                    Other Commands.                    (line 121)
+* Copy pattern space into hold space:                    Other Commands.                    (line 113)
+* Delete first line from pattern space:                 Other Commands.                    (line 99)
+* Disabling autoprint, from command line:                 Invoking sed.                    (line 34)
+* empty regular expression:                                Addresses.                        (line 31)
+* Emptying pattern space <1>:                            Reporting Bugs.                    (line 129)
+* Emptying pattern space:                                Extended Commands.                (line 93)
+* Evaluate Bourne-shell commands:                        Extended Commands.                (line 12)
+* Evaluate Bourne-shell commands, after substitution:     The "s" Command.                (line 103)
+* Exchange hold space with pattern space:                 Other Commands.                    (line 129)
+* Excluding lines:                                        Addresses.                        (line 103)
+* Extended regular expressions, choosing:                 Invoking sed.                    (line 113)
+* Extended regular expressions, syntax:                 Extended regexps.                (line 6)
+* File name, printing:                                    Extended Commands.                (line 30)
+* Files to be processed as input:                        Invoking sed.                    (line 148)
+* Flow of control in scripts:                            Programming Commands.            (line 11)
+* Global substitution:                                    The "s" Command.                (line 69)
+* GNU extensions, /dev/stderr file <1>:                 Other Commands.                    (line 88)
+* GNU extensions, /dev/stderr file:                        The "s" Command.                (line 96)
+* GNU extensions, /dev/stdin file <1>:                    Extended Commands.                (line 61)
+* GNU extensions, /dev/stdin file:                        Other Commands.                    (line 78)
+* GNU extensions, /dev/stdout file <1>:                 Other Commands.                    (line 88)
+* GNU extensions, /dev/stdout file <2>:                 The "s" Command.                (line 96)
+* GNU extensions, /dev/stdout file:                        Invoking sed.                    (line 156)
+* GNU extensions, 0 address <1>:                        Reporting Bugs.                    (line 102)
+* GNU extensions, 0 address:                            Addresses.                        (line 80)
+* GNU extensions, 0,ADDR2 addressing:                    Addresses.                        (line 80)
+* GNU extensions, ADDR1,+N addressing:                    Addresses.                        (line 80)
+* GNU extensions, ADDR1,~N addressing:                    Addresses.                        (line 80)
+* GNU extensions, branch if s/// failed:                 Extended Commands.                (line 71)
+* GNU extensions, case modifiers in s commands:         The "s" Command.                (line 23)
+* GNU extensions, checking for their presence:             Extended Commands.                (line 77)
+* GNU extensions, disabling:                            Invoking sed.                    (line 81)
+* GNU extensions, emptying pattern space <1>:             Reporting Bugs.                 (line 129)
+* GNU extensions, emptying pattern space:                 Extended Commands.                 (line 93)
+* GNU extensions, evaluating Bourne-shell commands <1>: Extended Commands.                (line 12)
+* GNU extensions, evaluating Bourne-shell commands:     The "s" Command.                (line 103)
+* GNU extensions, extended regular expressions:         Invoking sed.                     (line 113)
+* GNU extensions, g and NUMBER modifier interaction in s command: The "s" Command.        (line 75)
+* GNU extensions, I modifier <1>:                        The "s" Command.                (line 112)
+* GNU extensions, I modifier:                            Addresses.                        (line 49)
+* GNU extensions, in-place editing <1>:                 Reporting Bugs.                    (line 84)
+* GNU extensions, in-place editing:                        Invoking sed.                    (line 51)
+* GNU extensions, L command:                            Extended Commands.                (line 34)
+* GNU extensions, M modifier <1>:                        The "s" Command.                (line 117)
+* GNU extensions, M modifier:                            Addresses.                        (line 54)
+* GNU extensions, modifiers and the empty regular expression: Addresses.                (line 31)
+* GNU extensions, N~M addresses:                        Addresses.                        (line 13)
+* GNU extensions, quitting silently:                    Extended Commands.                (line 44)
+* GNU extensions, R command:                            Extended Commands.                (line 61)
+* GNU extensions, reading a file a line at a time:         Extended Commands.                (line 61)
+* GNU extensions, reformatting paragraphs:                 Extended Commands.                 (line 34)
+* GNU extensions, returning an exit code <1>:             Extended Commands.                (line 44)
+* GNU extensions, returning an exit code:                 Common Commands.                (line 30)
+* GNU extensions, setting line length:                    Other Commands.                    (line 65)
+* GNU extensions, special escapes <1>:                    Reporting Bugs.                    (line 77)
+* GNU extensions, special escapes:                        Escapes.                        (line 6)
+* GNU extensions, special two-address forms:             Addresses.                        (line 80)
+* GNU extensions, subprocesses <1>:                        Extended Commands.                (line 12)
+* GNU extensions, subprocesses:                            The "s" Command.                (line 103)
+* GNU extensions, to basic regular expressions <1>:     Reporting Bugs.                 (line 50)
+* GNU extensions, to basic regular expressions:         Regular Expressions.            (line 26)
+* GNU extensions, two addresses supported by most commands: Other Commands.                (line 25)
+* GNU extensions, unlimited line length:                 Limitations.                    (line 6)
+* GNU extensions, writing first line to a file:         Extended Commands.                (line 88)
+* Goto, in scripts:                                        Programming Commands.            (line 18)
+* Greedy regular expression matching:                    Regular Expressions.             (line 143)
+* Grouping commands:                                    Common Commands.                (line 50)
+* Hold space, appending from pattern space:             Other Commands.                    (line 117)
+* Hold space, appending to pattern space:                 Other Commands.                    (line 125)
+* Hold space, copy into pattern space:                    Other Commands.                    (line 121)
+* Hold space, copying pattern space into:                 Other Commands.                    (line 113)
+* Hold space, definition:                                Execution Cycle.                (line 6)
+* Hold space, exchange with pattern space:                 Other Commands.                    (line 129)
+* In-place editing:                                        Reporting Bugs.                    (line 84)
+* In-place editing, activating:                            Invoking sed.                    (line 51)
+* In-place editing, Perl-style backup file names:         Invoking sed.                    (line 62)
+* Inserting text before a line:                            Other Commands.                    (line 46)
+* Labels, in scripts:                                    Programming Commands.            (line 14)
+* Last line, selecting:                                    Addresses.                        (line 22)
+* Line length, setting <1>:                                Other Commands.                    (line 65)
+* Line length, setting:                                    Invoking sed.                    (line 76)
+* Line number, printing:                                Other Commands.                    (line 62)
+* Line selection:                                        Addresses.                        (line 6)
+* Line, selecting by number:                            Addresses.                        (line 8)
+* Line, selecting by regular expression match:             Addresses.                        (line 27)
+* Line, selecting last:                                    Addresses.                        (line 22)
+* List pattern space:                                    Other Commands.                    (line 65)
+* Mixing g and NUMBER modifiers in the s command:         The "s" Command.                (line 75)
+* Next input line, append to pattern space:             Other Commands.                    (line 105)
+* Next input line, replace pattern space with:             Common Commands.                (line 44)
+* Non-bugs, 0 address:                                    Reporting Bugs.                    (line 102)
+* Non-bugs, in-place editing:                            Reporting Bugs.                    (line 84)
+* Non-bugs, localization-related:                        Reporting Bugs.                    (line 111)
+* Non-bugs, N command on the last line:                 Reporting Bugs.                    (line 30)
+* Non-bugs, regex syntax clashes:                        Reporting Bugs.                    (line 50)
+* Parenthesized substrings:                                The "s" Command.                (line 19)
+* Pattern space, definition:                            Execution Cycle.                (line 6)
+* Portability, comments:                                Common Commands.                (line 15)
+* Portability, line length limitations:                 Limitations.                    (line 6)
+* Portability, N command on the last line:                 Reporting Bugs.                    (line 30)
+* POSIXLY_CORRECT behavior, bracket expressions:         Regular Expressions.            (line 105)
+* POSIXLY_CORRECT behavior, enabling:                    Invoking sed.                    (line 84)
+* POSIXLY_CORRECT behavior, escapes:                    Escapes.                        (line 11)
+* POSIXLY_CORRECT behavior, N command:                    Reporting Bugs.                    (line 45)
+* Print first line from pattern space:                    Other Commands.                    (line 110)
+* Printing file name:                                    Extended Commands.                (line 30)
+* Printing line number:                                    Other Commands.                    (line 62)
+* Printing text unambiguously:                            Other Commands.                    (line 65)
+* Quitting <1>:                                            Extended Commands.                (line 44)
+* Quitting:                                                Common Commands.                (line 30)
+* Range of lines:                                        Addresses.                        (line 67)
+* Range with start address of zero:                        Addresses.                        (line 80)
+* Read next input line:                                    Common Commands.                (line 44)
+* Read text from a file <1>:                            Extended Commands.                (line 61)
+* Read text from a file:                                Other Commands.                    (line 78)
+* Reformat pattern space:                                Extended Commands.                (line 34)
+* Reformatting paragraphs:                                Extended Commands.                (line 34)
+* Replace hold space with copy of pattern space:         Other Commands.                    (line 113)
+* Replace pattern space with copy of hold space:         Other Commands.                    (line 121)
+* Replacing all text matching regexp in a line:         The "s" Command.                (line 69)
+* Replacing only Nth match of regexp in a line:         The "s" Command.                (line 73)
+* Replacing selected lines with other text:             Other Commands.                    (line 52)
+* Requiring GNU sed:                                    Extended Commands.                (line 77)
+* Script structure:                                        sed Programs.                    (line 6)
+* Script, from a file:                                    Invoking sed.                    (line 46)
+* Script, from command line:                            Invoking sed.                    (line 41)
+* sed program structure:                                sed Programs.                    (line 6)
+* Selecting lines to process:                            Addresses.                        (line 6)
+* Selecting non-matching lines:                            Addresses.                        (line 103)
+* Several lines, selecting:                                Addresses.                        (line 67)
+* Slash character, in regular expressions:                 Addresses.                        (line 41)
+* Spaces, pattern and hold:                                Execution Cycle.                (line 6)
+* Special addressing forms:                                Addresses.                        (line 80)
+* Standard input, processing as input:                    Invoking sed.                    (line 150)
+* Stream editor:                                        Introduction.                    (line 6)
+* Subprocesses <1>:                                        Extended Commands.                (line 12)
+* Subprocesses:                                            The "s" Command.                (line 103)
+* Substitution of text, options:                        The "s" Command.                (line 65)
+* Text, appending:                                        Other Commands.                    (line 27)
+* Text, deleting:                                        Common Commands.                (line 36)
+* Text, insertion:                                        Other Commands.                    (line 46)
+* Text, printing:                                        Common Commands.                (line 39)
+* Text, printing after substitution:                    The "s" Command.                (line 83)
+* Text, writing to a file after substitution:             The "s" Command.                (line 96)
+* Transliteration:                                        Other Commands.                    (line 14)
+* Unbuffered I/O, choosing:                                Invoking sed.                    (line 131)
+* Usage summary, printing:                                Invoking sed.                    (line 28)
+* Version, printing:                                    Invoking sed.                    (line 24)
+* Working on separate files:                            Invoking sed.                    (line 121)
+* Write first line to a file:                            Extended Commands.                (line 88)
+* Write to a file:                                        Other Commands.                    (line 88)
+* Zero, as range start address:                            Addresses.                        (line 80)
+
+
+Command and Option Index
+************************
+File: sed.info, Node: Command and Option Index, Prev: Concept Index, Up: Top
+
+This is an alphabetical list of all 'sed' commands and command-line options.
+
+[index]
+* Menu:
+
+* # (comments):                                    Common Commands.        (line 12)
+* --binary:                                        Invoking sed.            (line 93)
+* --expression:                                    Invoking sed.            (line 41)
+* --file:                                        Invoking sed.            (line 46)
+* --follow-symlinks:                            Invoking sed.            (line 104)
+* --help:                                        Invoking sed.            (line 28)
+* --in-place:                                    Invoking sed.            (line 51)
+* --line-length:                                Invoking sed.            (line 76)
+* --null-data:                                    Invoking sed.            (line 139)
+* --posix:                                        Invoking sed.            (line 81)
+* --quiet:                                        Invoking sed.            (line 34)
+* --regexp-extended:                            Invoking sed.            (line 113)
+* --separate:                                    Invoking sed.            (line 121)
+* --silent:                                        Invoking sed.            (line 34)
+* --unbuffered:                                    Invoking sed.            (line 131)
+* --version:                                    Invoking sed.            (line 24)
+* --zero-terminated:                            Invoking sed.            (line 139)
+* -b:                                            Invoking sed.            (line 93)
+* -e:                                            Invoking sed.            (line 41)
+* -f:                                            Invoking sed.            (line 46)
+* -i:                                            Invoking sed.            (line 51)
+* -l:                                            Invoking sed.            (line 76)
+* -n:                                            Invoking sed.            (line 34)
+* -n, forcing from within a script:                Common Commands.        (line 20)
+* -r:                                            Invoking sed.            (line 113)
+* -s:                                            Invoking sed.            (line 121)
+* -u:                                            Invoking sed.            (line 131)
+* -z:                                            Invoking sed.            (line 139)
+* : (label) command:                            Programming Commands.    (line 14)
+* = (print line number) command:                Other Commands.            (line 62)
+* a (append text lines) command:                Other Commands.            (line 27)
+* b (branch) command:                            Programming Commands.    (line 18)
+* c (change to text lines) command:                Other Commands.            (line 52)
+* D (delete first line) command:                Other Commands.            (line 99)
+* d (delete) command:                            Common Commands.        (line 36)
+* e (evaluate) command:                            Extended Commands.        (line 12)
+* F (File name) command:                        Extended Commands.        (line 30)
+* G (appending Get) command:                    Other Commands.            (line 125)
+* g (get) command:                                Other Commands.            (line 121)
+* H (append Hold) command:                        Other Commands.            (line 117)
+* h (hold) command:                                Other Commands.            (line 113)
+* i (insert text lines) command:                Other Commands.            (line 46)
+* L (fLow paragraphs) command:                    Extended Commands.        (line 34)
+* l (list unambiguously) command:                Other Commands.            (line 65)
+* N (append Next line) command:                    Other Commands.            (line 105)
+* n (next-line) command:                        Common Commands.        (line 44)
+* P (print first line) command:                    Other Commands.            (line 110)
+* p (print) command:                            Common Commands.        (line 39)
+* q (quit) command:                                Common Commands.        (line 30)
+* Q (silent Quit) command:                        Extended Commands.        (line 44)
+* r (read file) command:                        Other Commands.            (line 78)
+* R (read line) command:                        Extended Commands.        (line 61)
+* s command, option flags:                        The "s" Command.        (line 65)
+* T (test and branch if failed) command:         Extended Commands.        (line 71)
+* t (test and branch if successful) command:     Programming Commands.    (line 22)
+* v (version) command:                            Extended Commands.        (line 77)
+* w (write file) command:                        Other Commands.            (line 88)
+* W (write first line) command:                    Extended Commands.        (line 88)
+* x (eXchange) command:                            Other Commands.            (line 129)
+* y (transliterate) command:                    Other Commands.            (line 14)
+* z (Zap) command:                                Extended Commands.        (line 93)
+* {} command grouping:                            Common Commands.        (line 50)

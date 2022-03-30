@@ -1141,6 +1141,7 @@ PATTERNS AND ACTIONS
 
         srand([expr])
             Use expr as the new seed for the random number generator. If no expr is provided, use the time of day. The return value is the previous seed for the random number generator.
+            对于随机数生成器，给予其一个新的种子
 
     String Functions
         Gawk has the following built-in string functions:
@@ -1209,11 +1210,11 @@ PATTERNS AND ACTIONS
 
         tolower(str)
             Return a copy of the string str, with all the uppercase characters in str translated to their corresponding lowercase counterparts. Non-alphabetic characters are left unchanged.
-            返回 str 的全小写值
+            返回 str 的全小写副本
 
         toupper(str)
             Return a copy of the string str, with all the lowercase characters in str translated to their corresponding uppercase counterparts. Non-alphabetic characters are left unchanged.
-            返回 str 的全大写值
+            返回 str 的全大写副本
 
         Gawk is multibyte aware. This means that index(), length(), substr() and match() all work in terms of characters, not bytes.
 

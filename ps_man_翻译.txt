@@ -1,0 +1,1349 @@
+User Commands
+PS(1)
+----------
+NAME
+SYNOPSIS
+DESCRIPTION
+EXAMPLES
+OPTIONS
+    SIMPLE PROCESS SELECTION 进程选择基础部分
+    PROCESS SELECTION BY LIST 按照列表选择进程
+    OUTPUT FORMAT CONTROL 输出信息的格式控制
+    OUTPUT MODIFIERS 输出修饰符
+    THREAD DISPLAY 线程信息的输出
+    OTHER INFORMATION 其他选项
+    NOTES 一些注意事项
+PROCESS FLAGS 进程的旗标
+PROCESS STATE CODES 进程状态代码
+OBSOLETE SORT KEYS （不翻译）
+AIX FORMAT DESCRIPTORS（不翻译）
+	（进程基本信息）
+	（进程的 command）
+	（进程 uid 和 gid）
+	（进程的 session）
+	（进程的调度策略）
+	（进程的优先级）
+	（进程的 tty）
+	（进程的时间）
+	（进程状态）
+	（进程 CPU 使用）
+	（进程内存使用）
+	（线程相关）
+	（进程寄存器相关）
+	（进程 signal）
+	（进程 namespace）
+	（其他）
+STANDARD FORMAT SPECIFIERS 标准格式指示符
+ENVIRONMENT VARIABLES 各种环境变量
+PERSONALITY 各种 ps 风格
+OTHERS
+    SEE ALSO
+    STANDARDS
+    AUTHOR
+----------
+问题：
+    1. 什么是 euid、egid、ruid、rgid、fuid、fgid？其各自对进程有什么意义？
+    2. 什么是 session leader？
+    3. 什么是 namelist？
+    4. 什么是信号的掩码 mask of signal？
+    5. 什么是捕捉到的信号 caught signal？
+    6. 什么是进程的控制组 control group？
+    7. 关于进程的各种调度策略？
+    8. 什么是命名空间？namespace the process belongs to？
+    9. 什么是进程的 major page faults？minor page faults？
+    10. wchan 是什么意思？
+    11. 什么是进程的 saved group？
+    12. 什么是进程的 slice？
+    13. 什么是进程的 supplementary groups？
+	14. 什么是 physical pages of the core image of the process？
+	15. 什么是线程的 thread group leader？
+	16. 什么是 user unit？
+
+说明：
+    1. 对于 BSD 风格的选项，由于个人不喜欢，且 BSD 选项与 UNIX 选项混用时经常冲突，因而大部分 BSD 选项不进行翻译，除非是很常用的，或者是 BSD 所独有的。
+
+NAME
+        ps - report a snapshot of the current processes.
+        对当前的进程输出一份快照
+
+SYNOPSIS
+        ps [OPTIONS]
+
+DESCRIPTION
+        ps displays information about a selection of the active processes. If you want a repetitive update of the selection and the displayed information, use top(1) instead.
+
+        ps 的功能，是选定一些活动进程，然后将这些进程的信息打印出来。 
+        如果想要看的是持续更新的进程信息，使用 top 命令。
+
+        This version of ps accepts several kinds of options:
+
+            1   UNIX options, which may be grouped and must be preceded by a dash.
+            2   BSD options, which may be grouped and must not be used with a dash.
+            3   GNU long options, which are preceded by two dashes.
+
+        Options of different types may be freely mixed, but conflicts can appear. There are some synonymous options, which are functionally identical, due to the many standards and ps implementations that this ps is compatible with.
+
+        Note that "ps -aux" is distinct from "ps aux". The POSIX and UNIX standards require that "ps -aux" print all processes owned by a user named "x", as well as printing all processes that would be selected by the -a option. If the user named "x" does not exist, this ps may interpret the command as "ps aux" instead and print a warning. This behavior is intended to aid in transitioning old scripts and habits. It is fragile, subject to change, and thus should not be relied upon.
+
+        ps 接受以下三种风格的选项：
+            1. UNIX 方式，亦即跟在 '-' 之后，可以组合在一起。（这是 ps 认为的标准方式）
+            2. BSD 方式，亦即单独的选项，可以组合在一起
+            3. GNU 方式，亦即跟在 '--' 之后
+
+        三种风格的选项有可能可以混用，也有可能存在冲突。
+        三种风格中的某些选项，可能具有完全相同的功能，这是因为 ps 具有众多的标准，ps 为了保存对不同的标准的实现，也是为了保护兼容性，
+
+        注意，'ps -aux' 是与 'ps aux' 不同的。
+        'ps -aux' 是 UNIX 风格，功能是打印出所有 x 用户的进程的信息，同时打印出所有被 -a 选项选定的信息。
+        但是，如果当 x 用户不存在，则 ps 会将命令按照 'ps aux' 进行识别并执行，并打印出处一个告警。
+        这种行为是为了对旧有的脚本和习惯的兼容，这种情况非常不牢靠，且有可能改变，应当尽量避免。
+
+        By default, ps selects all processes with the same effective user ID (euid=EUID) as the current user and associated with the same terminal as the invoker. It displays the process ID (pid=PID), the terminal associated with the process (tname=TTY), the cumulated CPU time in [DD-]hh:mm:ss format (time=TIME), and the executable name (ucmd=CMD). Output is unsorted by default.
+
+        The use of BSD-style options will add process state (stat=STAT) to the default display and show the command args (args=COMMAND) instead of the executable name. You can override this with the PS_FORMAT environment variable. The use of BSD-style options will also change the process selection to include processes on other terminals (TTYs) that are owned by you; alternately, this may be described as setting the selection to be the set of all processes filtered to exclude processes owned by other users or not on a terminal. These effects are not considered when options are described as being "identical" below, so -M will be considered identical to Z and so on.
+
+        Except as described below, process selection options are additive. The default selection is discarded, and then the selected processes are added to the set of processes to be displayed. A process will thus be shown if it meets any of the given selection criteria.
+
+        默认情况下，ps 选取的进程是所有属于当前用户的并且属于当前终端的进程。
+        默认打印的信息包括：PID、TTY、累积 CPU 时间、程序名。
+        默认不排序。
+
+        如果使用的是 BSD 风格的选项，则会额外添加进程状态 STAT、执行程序的参数等信息。
+        这个特征可以通过 PS_FORMAT 环境变量进行覆盖。
+        并且，使用 BSD 风格的选项，默认选取的进程为所有属于当前用户的进程，不管是否属于当前终端。（也就是说，从全部进程中剔除属于其他用户的进程和不属于任何终端的进程。）
+        BSD 风格选项的这种特性，即使与其他风格的选项的功能被描述为'完全相同'时，也存在。
+        例如，虽然认为 '-M' 和 'Z' 两个选项功能相同，但实际上 'Z' 选项会额外输出 BSD 风格选项的那些额外信息。
+
+        除非额外说明，否则进程选取的选项都是加法性的。（可以一次性指定多个，选取的进程为所有结果的并集）
+        当使用了任意进程选取选项时，则不再按照默认方式选取进程，而是会按照选项的要求选取进程。
+
+EXAMPLES
+
+        To see every process on the system using standard syntax:
+        使用标准方式，查看系统上的所有进程
+            ps -e
+            ps -ef
+            ps -eF
+            ps -ely
+
+        To see every process on the system using BSD syntax:
+        使用 BSD 风格，查看系统上的所有进程
+            ps ax
+            ps axu
+
+        To print a process tree:
+        查看进程树
+            ps -ejH
+            ps axjf
+
+        To get info about threads:
+        查看线程信息
+            ps -eLf
+            ps axms
+
+        To get security info:
+        查看安全信息
+            ps -eo euser,ruser,suser,fuser,f,comm,label
+            ps axZ
+            ps -eM
+
+        To see every process running as root (real & effective ID) in user format:
+        查看所有以 root 身份运行的进程，无论是 RUID 还是 EUID，并且输出信息遵循 user-format 格式
+            ps -U root -u root u
+
+        To see every process with a user-defined format:
+        查看所有进程，但输出信息按照用户自定义的格式
+            ps -eo pid,tid,class,rtprio,ni,pri,psr,pcpu,stat,wchan:14,comm
+            ps axo stat,euid,ruid,tty,tpgid,sess,pgrp,ppid,pid,pcpu,comm
+            ps -Ao pid,tt,user,fname,tmout,f,wchan
+
+        Print only the process IDs of syslogd:
+        只打印所有 syslogd 进程的 pid 信息
+            ps -C syslogd -o pid=
+
+        Print only the name of PID 42:
+        只查看 pid 为 42 的进程的程序
+            ps -q 42 -o comm=
+
+OPTIONS
+    SIMPLE PROCESS SELECTION 进程选择基础部分
+
+
+        -A, -e
+            Select all processes. 
+            选择所有进程。
+
+        -a
+            Select all processes except both session leaders (see getsid(2)) and processes not associated with a terminal.
+            选择所有属于当前终端的进程，但排除 session leaders 进程。
+
+        -d
+            Select all processes except session leaders.
+            选择所有进程，但排除 session leaders 进程。
+
+
+        -N, --deselect
+            Select all processes except those that fulfill the specified conditions (negates the selection).
+            反向选择进程。
+        
+        （以下为 BSD 风格）
+
+        ax
+            a: Lift the BSD-style "only yourself" restriction, which is imposed upon the set of all processes when some BSD-style (without "-") options are used or when the ps personality setting is BSD-like. The set of processes selected in this manner is in addition to the set of processes selected by other means. An alternate description is that this option causes ps to list all processes with a terminal (tty), or to list all processes when used together with the x option.
+            x: Lift the BSD-style "must have a tty" restriction, which is imposed upon the set of all processes when some BSD-style (without "-") options are used or when the ps personality setting is BSD-like. The set of processes selected in this manner is in addition to the set of processes selected by other means. An alternate description is that this option causes ps to list all processes owned by you (same EUID as ps), or to list all processes when used together with the a option.
+            选择所有进程，BSD 风格。
+            （a、x 虽然可以分开使用，但基本都是组合在一起使用）
+            （单独使用 a 表示挂起 BSD 风格的 'only yourself' 限制，仅保留 'must have a tty' 限制，效果为选择所有属于某个终端的进程）
+            （单独使用 a 表示挂起 BSD 风格的 'must have a tty' 限制，仅保留 'only yourself' 限制，效果为选择所有当前用户的进程）
+            （单独使用时，均可以将选择的结果与其他选项选择的结果进行汇总）
+            （没有必要单独使用，可以使用 UNIX 风格的相应的选项）
+
+        g
+            Really all, even session leaders. This flag is obsolete and may be discontinued in a future release. It is normally implied by the a flag, and is only useful when operating in the sunos4 personality.
+            （不翻译，已被废弃，后续版本可能会删除，功能基本可以被 'a' 选项替代）
+
+        T
+            Select all processes associated with this terminal. Identical to the t option without any argument.
+            选择所有属于当前终端的进程。
+            功能与 't' 选项不加任何参数时相同。
+
+        r
+            Restrict the selection to only running processes.
+            仅选择 running 状态的进程
+
+    PROCESS SELECTION BY LIST 按照列表选择进程
+
+        These options accept a single argument in the form of a blank-separated or comma-separated list. They can be used multiple times. For example: ps -p "1 2" -p 3,4
+        下文中所说的列表 'list'，可以是空白间隔的列表，也可以是逗号间隔的列表，并且不同形式的列表也可以多次出现。
+
+        -123, -p pidlist, --pid pidlist
+            Select by PID. This selects the processes whose process ID numbers appear in pidlist. 
+            按照 pid 选择进程
+        
+        -C cmdlist
+            Select by command name. This selects the processes whose executable name is given in cmdlist.
+            按照程序名选择进程。
+        
+
+        -g grplist
+            Select by session OR by effective group name. Selection by session is specified by many standards, but selection by effective group is the logical behavior that several other operating systems use. This ps will select by session when the list is completely numeric (as sessions are). Group ID numbers will work only when some group names are also specified. See the -s and --group options.
+            按照 session 或 EGID 来选择进程。
+            （逻辑上讲，应该是只按照有效组来选择进程，但有些标准指定了按照会话来选择进程，因此才让此选项同时具有两个功能）
+            如果 'grplist' 中全是数字时，则按照 session 选择进程。
+            如果 'grplist' 中至少存在一个组名时，才会按照 EGID 来选择进程。
+
+        --group grplist
+            Select by effective group ID (EGID) or name. This selects the processes whose effective group name or ID is in grplist. The effective group ID describes the group whose file access permissions are used by the process (see getegid(2)). The -g option is often an alternative to --group.
+            按照 EGID 选择进程。
+            'grplist' 中可以是 ID，也可以是 name。
+            （所谓有效组，就是指进程使用的此组的文件访问权限。）
+            通常 -g 选项是 --group 选项的替代方案。
+        
+        -G grplist, --Group grplist
+            Select by real group ID (RGID) or name. This selects the processes whose real group name or ID is in the grplist list. The real group ID identifies the group of the user who created the process, see getgid(2).
+            按照 RGID 选择进程。
+            'grplist' 中可以是 ID，也可以是 name。
+            （所谓 RGID，是用来创建进程的用户的分组。更多可以查看 getgid 的帮助）
+        
+        --ppid pidlist
+            Select by parent process ID. This selects the processes with a parent process ID in pidlist. That is, it selects processes that are children of those listed in pidlist.
+            按照父进程的 pid 来选择进程。
+
+        -q pidlist, --quick-pid pidlist
+            Select by PID (quick mode). This selects the processes whose process ID numbers appear in pidlist. With this option ps reads the necessary info only for the pids listed in the pidlist and doesn't apply additional filtering rules. The order of pids is unsorted and preserved. No additional selection options, sorting and forest type listings are allowed in this mode. Identical to q and --quick-pid.
+            按照 pid 来选择进程，不过采用快速模式。
+            所谓快速模式，是指 ps 只会读取进程的必要信息。
+            不会进行额外的过滤规则。结果不排序，而是按照在 pidlist 中的顺序。
+            基本上只能单独使用，不能与其他的进行选取选项、排序选项、森林选项一起使用。
+            
+        -s sesslist, --sid sesslist
+            Select by session ID. This selects the processes with a session ID specified in sesslist.
+            按照 session 选择进程。
+            
+        -t ttylist, --tty ttylist
+            Select by tty. This selects the processes associated with the terminals given in ttylist. Terminals (ttys, or screens for text output) can be specified in several forms: /dev/ttyS1, ttyS1, S1. A plain "-" may be used to select processes not attached to any terminal.
+            按照 tty 选择进程。
+            'ttylist' 中的项的格式可以是：/dev/ttyN, ttyN, N。
+            如果 '-' 作为 'ttylist' 中唯一的项，则表示选择不属于任何终端的进程
+
+        -u userlist, --user userlist
+            Select by effective user ID (EUID) or name. This selects the processes whose effective user name or ID is in userlist. The effective user ID describes the user whose file access permissions are used by the process (see geteuid(2)). Identical to U and --user.
+            按照 EUID 选择进程。
+            'userlist' 中可以是 ID，也可以是 name。
+            （所谓进程的有效用户，是指进程使用的是此用户的文件访问权限）
+            
+        -U userlist, --User userlist
+            Select by real user ID (RUID) or name. It selects the processes whose real user name or ID is in the userlist list. The real user ID identifies the user who created the process, see getuid(2).
+            按照 RUID 选择进程。
+            'userlist' 中可以是 ID，也可以是 name。
+            （所谓进程的真实用户，是指创建进程的用户）
+        
+        （以下为 BSD 风格）
+        
+        123, p pidlist
+            Select by process ID. Identical to -p and --pid.
+            （不翻译，与 -p 功能相同）
+
+        q pidlist
+            Select by process ID (quick mode). Identical to -q and --quick-pid.
+            （不翻译，与 -q 功能相同）
+
+        t ttylist
+            Select by tty. Nearly identical to -t and --tty, but can also be used with an empty ttylist to indicate the terminal associated with ps. Using the T option is considered cleaner than using t with an empty ttylist.
+            （不翻译，与 -t 功能相同，或者说基本完全相同）
+
+        U userlist
+            Select by effective user ID (EUID) or name. This selects the processes whose effective user name or ID is in userlist. The effective user ID describes the user whose file access permissions are used by the process (see geteuid(2)). Identical to -u and --user.
+            （不翻译，与 -u 功能相同）
+
+    OUTPUT FORMAT CONTROL 控制输出信息的格式
+
+        These options are used to choose the information displayed by ps. The output may differ by personality.
+        以下选项用来指导 ps 输出的信息中包含哪些列。
+        不同的风格的 ps 相互之间可能不同
+
+        -c
+            Show different scheduler information for the -l option.
+            显示进程的调度策略 CLS。
+
+        --context
+            Display security context format (for SELinux).
+            显示进程的安全文本信息 CONTEXT。
+
+        -f
+            Do full-format listing. This option can be combined with many other UNIX-style options to add additional columns. It also causes the command arguments to be printed. When used with -L, the NLWP (number of threads) and LWP (thread ID) columns will be added. See the c option, the format keyword args, and the format keyword comm.
+            在输出信息时，输出更详细的信息。
+            可能某一列的内容会比之前更详细，如在输出 command 时，内容中会添加参数。
+            可能会额外输出更多的列，如 '-L' 选项与 '-f' 一起使用时，会额外添加 PPID、NLWP 等列。
+
+        -F
+            Extra full format. See the -f option, which -F implies.
+            与 '-f' 功能类似，但比 '-f' 更详细。
+            
+        -j
+            Jobs format.
+            按照作业的格式进行输出。
+            会增加 PGID、SID 两列。
+        
+        -l, -y
+            -l: Long format. The -y option is often useful with this.
+            -y: Do not show flags; show rss in place of addr. This option can only be used with -l.
+            -l 选项表示按照长格式进行输出。
+            会额外添加 F、S、UID、PPID、C、PRI、NI、ADDR、SZ、WCHAN 这几列
+            -y 选项只能配合 -l 选项一起使用，表示在 -l 输出的列中，去掉 'F' 这一列
+            
+        -M
+            Add a column of security data. Identical to Z (for SELinux).
+            额外添加 LABEL 列，表示与 selinux 安全有关的信息，通常被用作 selinux 的安全性文本。
+
+        -o format, --format format
+            User-defined format. format is a single argument in the form of a blank-separated or comma-separated list, which offers a way to specify individual output columns. The recognized keywords are described in the STANDARD FORMAT SPECIFIERS section below. Headers may be renamed (ps -o pid,ruser=RealUser -o comm=Command) as desired. If all column headers are empty (ps -o pid= -o comm=) then the header line will not be output. Column width will increase as needed for wide headers; this may be used to widen up columns such as WCHAN (ps -o pid,wchan=WIDE-WCHAN-COLUMN -o comm). Explicit width control (ps opid, wchan:42,cmd) is offered too. The behavior of ps -o pid=X,comm=Y varies with personality; output may be one column named "X,comm=Y" or two columns named "X" and "Y". Use multiple -o options when in doubt. Use the PS_FORMAT environment variable to specify a default as desired; DefSysV and DefBSD are macros that may be used to choose the default UNIX or BSD columns.
+            在输出信息时，按照用户指定的格式输出。
+            'format'，是一个 blank 或 comma 分隔的列表，让用户可以指定输出哪些列。
+            'format' 中支持的关键字，在 'STANDARD FORMAT SPECIFIERS' 一节中有详细的说明。
+            可以通过 'ps -o Keyword=Value' 的方式，对列标题重命名。
+            如果某一个 Keyword 为空，如 'ps -o Keyword01= -o Keyword02=Value02'，则此列的列表标题会被省略。
+            如果所有的 Keyword 都为空，则列标题行会被省略。
+            修改列标题的一个好处，是列的宽度会随着列标题的宽度增长而变长，因而可以通过修改列标题来对列进行增宽。
+            ps 也提供了显式控制列标题的语法，格式为 'ps -o Keyword:Width'
+            使用 'Keyword=Value' 的格式时需要注意，对于诸如 'ps -o Keyword01=X,Keyword02=Y' 时的表现，不同的 ps 风格会有不同的输出。
+            有的会输出一列，列标题为 'X，Keyword02=Y'，有的会输出两列，第一列的列标题为 'X'，第二列的列标题为 'Y'。
+            因此，如果存在疑问，则可以多次使用 '-o' 选项，每一个 '-o' 选项只接一个 Keyword。
+            PS_FORMAT 环境变量，可以用来设置 ps 命令的默认输出格式。
+            DefSysV 和 DefBSD 是两个宏，可以用来选择默认的 UNIX 或 BSD 列。
+            
+        -O format
+            Like -o, but preloaded with some default columns. Identical to -o pid,format,state,tname,time,command or -o pid,format,tname,time,cmd, see -o above.
+            与 '-o' 类似，但比 '-o' 的优点在于默认已经加载了一些比较基础的列，不需要在命令行上再指定这些基础信息列了。
+            预加载的列包括：pid、state、tname、time、command，或者 pid、tname、time、cmd。
+            'format' 部分会被放在 'pid' 之后。
+
+        （以下为 BSD 风格）
+        
+        j
+            BSD job control format.
+            按照 BSD 作业控制的格式进行输出。
+            输出信息时，会增加 PPID、PGID、SID、TPGID、STAT、UID 这几列，同时 COMMAND 列会连同命令的参数一起输出
+
+        l
+            Display BSD long format.
+            按照 BSD 长格式进行输出。
+            会增加 F、UID、PPID、PRI、NI、VSZ、RSS、WCHAN、STAT 这几列，同时 COMMAND 列会连同命令的参数一起输出
+
+        o format
+            Specify user-defined format.  Identical to -o and --format.
+            （不翻译，与 -o 功能相同）
+
+        O format
+            is preloaded o (overloaded). The BSD O option can act like -O (user-defined output format with some common fields predefined) or can be used to specify sort order. Heuristics are used to determine the behavior of this option. To ensure that the desired behavior is obtained (sorting or formatting), specify the option in some other way (e.g. with -O or --sort). When used as a formatting option, it is identical to -O, with the BSD personality.
+            （不翻译，此选项太过冗杂，又是能指定 format，又是能指定排序）
+            （题外话，此选项可以说明为什么我不喜欢 BSD 格式的选项）
+            （Heuristics，启发法。他妈的 option 的作用应该是清晰并且被严格限定范围的，操他妈的启发法）
+
+        s
+            Display signal format.
+            按照信号的格式进行输出。
+            会额外增加与信号有关的列，包括 UID、PENDING、BLOCKED、IGNORED、CAUGHT、STAT 这几列。
+
+        u
+            Display user-oriented format.
+            按照面向用户的格式进行输出。
+            会额外增加这几列：USER、%CPU、%MEM、VSZ、RSS、STAT、START。
+
+        v
+            Display virtual memory format.
+            按照虚拟内存的格式进行输出。
+            会额外增加以下几列：STAT、MAJFL、TRS、DRS、RSS、%MEM。
+
+        X
+            Register format.
+            按照寄存器的格式进行输出。
+            会额外增加以下几列：STACKP、ESP、EIP、TMOUT、ALARM、STAT。
+
+        Z
+            Add a column of security data. Identical to -M (for SELinux).
+            （不翻译，与 -M 功能相同）
+
+    OUTPUT MODIFIERS 输出修饰符
+        
+        --cols n, --columns n
+            Set screen width.
+            设置屏幕宽度
+
+        --cumulative
+            Include some dead child process data (as a sum with the parent).
+            将 dead 的子进程的数据，累加到父进程的数据之上。
+
+        --forest
+            ASCII art process tree.
+            输出 ASCII 艺术风格的进程树。
+
+        -H
+            Show process hierarchy (forest).
+            输出层级式的进程森林。
+            （使用缩进来标识父子关系，每层缩进 2 个 space。个人感觉，人类可读性不如 '--forest'，但脚本可读性要比 '--forest' 好。）
+
+        --headers
+            Repeat header lines, one per page of output.
+            按照当前终端的屏幕高度，进行分页，每页增加一行列标题
+
+        --lines n
+            Set screen height.
+            设定屏幕的高度。
+            
+        -n namelist
+            Set namelist file. Identical to N. The namelist file is needed for a proper WCHAN display, and must match the current Linux kernel exactly for correct output. Without this option, the default search path for the namelist is:
+            （不懂）
+
+                $PS_SYSMAP
+                $PS_SYSTEM_MAP
+                /proc/*/wchan
+                /boot/System.map-$(uname -r)
+                /boot/System.map
+                /lib/modules/$(uname -r)/System.map
+                /usr/src/linux/System.map
+                /System.map
+
+
+        --no-headers, --no-heading
+            Print no header line at all. --no-heading is an alias for this option.
+            隐藏列标题行
+            
+        --rows n
+            Set screen height.
+            设定屏幕高度。
+        
+        --sort spec
+            Specify sorting order. Sorting syntax is [+|-]key[,[+|-]key[,...]]. Choose a multi-letter key from the STANDARD FORMAT SPECIFIERS section. The "+" is optional since default direction is increasing numerical or lexicographic order. Identical to k. For example: ps jax --sort=uid,-ppid,+pid
+            指定排序的顺序。
+            'spec' 的语法为 [+|-]key[,...]。
+            '+' 表示升序排列。
+            指定指定多个 key，则进行多级排序。
+        
+        -w
+            Wide output. Use this option twice for unlimited width.
+            -w，每一列的数据按照比较宽的宽度进行输出。
+            -ww，输出的数据为无限宽度。
+            
+        --width n
+            Set screen width.
+            设定屏幕宽度。
+
+        （以下为 BSD 风格）
+        
+        c
+            Show the true command name. This is derived from the name of the executable file, rather than from the argv value. Command arguments and any modifications to them are thus not shown. This option effectively turns the args format keyword into the comm format keyword; it is useful with the -f format option and with the various BSD-style format options, which all normally display the command arguments. See the -f option, the format keyword args, and the format keyword comm.
+            仅显示 command name，省略命令的参数。
+            相当于把 args 列改为 comm 列。
+            常与 '-f' 等会显示命令参数的选项一起使用。
+
+        e
+            Show the environment after the command.
+            在输出进程的程序时，同时把环境变量也打印出来。
+
+        f
+            ASCII art process hierarchy (forest).
+            （不翻译，与 --forest 功能相同）
+            
+        h
+            No header. (or, one header per screen in the BSD personality). The h option is problematic. Standard BSD ps uses this option to print a header on each page of output, but older Linux ps uses this option to totally disable the header. This version of ps follows the Linux usage of not printing the header unless the BSD personality has been selected, in which case it prints a header on each page of output. Regardless of the current personality, you can use the long options --headers and --no-headers to enable printing headers each page or disable headers entirely, respectively.
+            （不翻译，具有两个功能，但分别可以被 --headers 和 --no-headers 替代）
+
+        k spec
+            Specify sorting order. Sorting syntax is [+|-]key[,[+|-]key[,...]]. Choose a multi-letter key from the STANDARD FORMAT SPECIFIERS section. The "+" is optional since default direction is increasing numerical or lexicographic order. Identical to --sort.
+            Examples:
+                ps jaxkuid,-ppid,+pid
+                ps axk comm o comm,args
+                ps kstart_time -ef
+            （不翻译，与 --sort 功能相同）
+
+        N namelist
+            Specify namelist file. Identical to -n, see -n above.
+            （不翻译，与 -n 功能相同）
+
+        n
+            Numeric output for WCHAN and USER (including all types of UID and GID).
+            （不懂）
+
+        O order
+            Sorting order (overloaded). The BSD O option can act like -O (user-defined output format with some common fields predefined) or can be used to specify sort order. Heuristics are used to determine the behavior of this option. To ensure that the desired behavior is obtained (sorting or formatting), specify the option in some other way (e.g. with -O or --sort).
+            For sorting, obsolete BSD O option syntax is O[+|-]k1[,[+|-]k2[,...]]. It orders the processes listing according to the multilevel sort specified by the sequence of one-letter short keys k1,k2, ... described in the OBSOLETE SORT KEYS section below. The "+" is currently optional, merely re-iterating the default direction on a key, but may help to distinguish an O sort from an O format. The "-" reverses direction only on the key it precedes.
+            （不翻译，具有两个功能，但分别可以被 -o 和 --sort 所替代）
+            （又是一个 BSD 的启发式的选项，有病）
+
+        S
+            Sum up some information, such as CPU usage, from dead child processes into their parent. This is useful for examining a system where a parent process repeatedly forks off short-lived children to do work.
+            信息集成，将 dead 的子进程的信息，如 cpu 用量，汇总到其父进程之上。
+            对以下场景非常有用：一个父进程，总是不同的创建一些短期存活的子进程来处理工作。
+
+        w
+            Wide output. Use this option twice for unlimited width.
+            （不翻译，与 -w 功能相同）
+
+    THREAD DISPLAY 线程信息的输出
+
+        -L
+            Show threads, possibly with LWP and NLWP columns.
+            显示线程。
+            （可能会在输出信息中添加 LWP 和 NLWP 两列）
+        
+        -m
+            Show threads after processes.
+            在进程之后显示线程。
+        
+        -T
+            Show threads, possibly with SPID column.
+            显示线程的信息，并额外添加 SPID 列。
+        
+        （以下为 BSD 风格）
+        
+        H
+            Show threads as if they were processes.
+            将线程当做进程一样输出
+
+        m
+            Show threads after processes.
+            （不翻译，与 -m 功能相同）
+
+    OTHER INFORMATION 其他选项
+        --help section
+            Print a help message. The section argument can be one of simple, list, output, threads, misc or all. The argument can be shortened to one of the underlined letters as in: s|l|o|t|m|a.
+            打印帮助信息。
+            可以只针对某一个方面打印信息，包括 simple、list、output、threads、misc、all。
+            分别可以用单个字母来表示：s、l、o、t、m、a。
+
+        --info
+            Print debugging info.
+            （不懂）
+
+        -V, --version
+            Print the procps-ng version.
+            打印 ps 的版本信息。
+        
+        （以下为 BSD 选项）
+        L
+            List all format specifiers.
+            显示所有的格式指示符
+
+        V
+            Print the procps-ng version.
+            （不翻译，与 -V 功能相同）
+
+    NOTES
+        1. This ps works by reading the virtual files in /proc. This ps does not need to be setuid kmem or have any privileges to run. Do not give this ps any special permissions.
+        此版本的 ps，是通过阅读 /proc 中的文件，来进行工作的。
+        对于 ps 程序，不需要进行 setuid，不需要添加任何额外的权限。
+
+        2. This ps needs access to namelist data for proper WCHAN display. For kernels prior to 2.6, the System.map file must be installed.
+        （不懂）
+
+        3. CPU usage is currently expressed as the percentage of time spent running during the entire lifetime of a process. This is not ideal, and it does not conform to the standards that ps otherwise conforms to. CPU usage is unlikely to add up to exactly 100%.
+        对于 cpu usage 的计算方法，是用进程 running 的时间除以进程的整个生命的时间。
+        这种计算方法并不理想，也不符合 ps 应当遵循的表针，
+        cpu usage 一般不太可能上涨到 100%。
+
+        4. The SIZE and RSS fields don't count some parts of a process including the page tables, kernel stack, struct thread_info, and struct task_struct. This is usually at least 20 KiB of memory that is always resident. SIZE is the virtual size of the process (code+data+stack).
+        SIZE 列和 RSS 列通常不统计进程的某些特定的部分，如 page tables、kernel stack、struct thread_info、struct task_struct。
+        这些内容通常占据大概 20K 的内存空间并且长驻。
+        SIZE 是进程的虚拟大小，包括 code+data+stack。
+
+        5. Processes marked <defunct> are dead processes (so-called "zombies") that remain because their parent has not destroyed them properly. These processes will be destroyed by init(8) if the parent process exits.
+        如果一个进程的 STAT 列显示为 '<defunct>'，则表示此进程为僵尸进程。
+        所谓僵尸进程，是指已经 dead，但其父进程并没有适当地将其 destroy。
+        僵尸进程会在父进程 exit 时，被 init 所 destroy。
+
+        6. If the length of the username is greater than the length of the display column, the numeric user ID is displayed instead.
+        对于用户 name，如果超过了列宽，则会改而显示 ID。
+
+        7. Commands options such as ps -aux are not recommended as it is a confusion of two different standards. According to the POSIX and UNIX standards, the above command asks to display all processes with a TTY (generally the commands users are running) plus all processes owned by a user named "x". If that user doesn't exist, then ps will assume you really meant "ps aux".
+        对于可能引起两种风格的选项的混淆的命令，如 'ps -aux'，应当尽力避免使用。
+
+PROCESS FLAGS 进程的旗标
+        The sum of these values is displayed in the "F" column, which is provided by the flags output specifier:
+        进程的旗标，会显示在 'F' 列中。
+        旗标可以进行相加。
+
+            1
+                forked but didn't exec
+                （不懂）
+            
+            4    
+                used super-user privileges
+                具有超级用户权限
+
+PROCESS STATE CODES 进程状态代码
+        Here are the different values that the s, stat and state output specifiers (header "STAT" or "S") will display to describe the state of a process:
+        进程的状态代码，会显示在 'S' 或 'STAT' 列中。
+
+            D
+                uninterruptible sleep (usually IO)
+                （不懂）不可中断的睡眠，通常是正在 IO
+                
+            R   
+                running or runnable (on run queue)
+                running 或者 runnable 状态
+
+            S   
+                interruptible sleep (waiting for an event to complete)
+                （不懂）可中断的睡眠，等待某个事件才能完成
+            
+            T
+                stopped by job control signal
+                被作业控制信号给 stopped 了
+            
+            t   
+                stopped by debugger during the tracing
+                （不懂）在 tracing 时被 debugger 给 stopped 了
+            
+            W   
+                paging (not valid since the 2.6.xx kernel)
+                （不懂）正在分页
+            
+            X   
+                dead (should never be seen)
+                死掉了
+            
+            Z   
+                defunct ("zombie") process, terminated but not reaped by its parent
+                僵尸了，已经被 terminated 了但并没有被其父进程给 destroy
+
+        For BSD formats and when the stat keyword is used, additional characters may be displayed:
+        如果使用的是 BSD 格式，并且搭配的 stat 关键字，则还会显示以下一些状态
+
+            <
+                high-priority (not nice to other users)
+                高权限
+            
+            N
+                low-priority (nice to other users)
+                低权限
+            
+            L
+                has pages locked into memory (for real-time and custom IO)
+                （不懂）
+            
+            s
+                is a session leader
+                是一个 session leader
+            
+            l
+                is multi-threaded (using CLONE_THREAD, like NPTL pthreads do)
+                以多线程的方式在运行
+            
+            +
+                is in the foreground process group
+                前台进程
+
+OBSOLETE SORT KEYS（不翻译）
+        These keys are used by the BSD O option (when it is used for sorting). The GNU --sort option doesn't use these keys, but the specifiers described below in the STANDARD FORMAT SPECIFIERS section. Note that the values used in sorting are the internal values ps uses and not the "cooked" values used in some of the output format fields (e.g. sorting on tty will sort into device number, not according to the terminal name displayed). Pipe ps output into the sort(1) command if you want to sort the cooked values.
+        （被 BSD 'O' 选项使用，来进行排序，所以不翻译，使用 '--sort' 选项去）
+
+        KEY     LONG            DESCRIPTION
+        c       cmd             simple name of executable
+        C       pcpu            cpu utilization
+        f       flags           flags as in long format F field
+        g       pgrp            process group ID
+        G       tpgid           controlling tty process group ID
+        j       cutime          cumulative user time
+        J       cstime          cumulative system time
+        k       utime           user time
+        m       min_flt         number of minor page faults
+        M       maj_flt         number of major page faults
+        n       cmin_flt        cumulative minor page faults
+        N       cmaj_flt        cumulative major page faults
+        o       session         session ID
+        p       pid             process ID
+        P       ppid            parent process ID
+        r       rss             resident set size
+        R       resident        resident pages
+        s       size            memory size in kilobytes
+        S       share           amount of shared pages
+        t       tty             the device number of the controlling tty
+        T       start_time      time process was started
+        U       uid             user ID number
+        u       user            user name
+        v       vsize           total VM size in KiB
+        y       priority        kernel scheduling priority
+
+AIX FORMAT DESCRIPTORS（不翻译）
+        This ps supports AIX format descriptors, which work somewhat like the formatting codes of printf(1) and printf(3). For example, the normal default output can be produced with this: ps -eo "%p %y %x %c". The NORMAL codes are described in the next section.
+        （AIX 方式的指定 format 的语法，没必要，还是使用标准 format 指示符即可）
+
+        CODE    NORMAL      HEADER
+        %C      pcpu        %CPU
+        %G      group       GROUP
+        %P      ppid        PPID
+        %U      user        USER
+        %a      args        COMMAND
+        %c      comm        COMMAND
+        %g      rgroup      RGROUP
+        %n      nice        NI
+        %p      pid         PID
+        %r      pgid        PGID
+        %t      etime       ELAPSED
+        %u      ruser       RUSER
+        %x      time        TIME
+        %y      tty         TTY
+        %z      vsz         VSZ
+
+STANDARD FORMAT SPECIFIERS 标准格式指示符
+        Here are the different keywords that may be used to control the output format (e.g. with option -o) or to sort the selected processes with the GNU-style --sort option.
+
+        For example: ps -eo pid,user,args --sort user
+
+        This version of ps tries to recognize most of the keywords used in other implementations of ps.
+
+        The following user-defined format specifiers may contain spaces: args, cmd, comm, command, fname, ucmd, ucomm, lstart, bsdstart, start.
+
+        Some keywords may not be available for sorting.
+
+        以下关键字，可以用在 '-o' 选项中来控制输出信息格式，也可以用在 --sort 选项中来对进程排序
+
+        有些关键字可能无法用在排序中。
+		
+	（进程基本信息）
+	
+        CODE: pid, HEADER: PID
+            a number representing the process ID (alias tgid).
+            进程的 pid。
+		
+        CODE: ppid, HEADER: PPID
+            parent process ID.
+            父进程的 pid。
+			
+		CODE: pgid, HEADER: PGID
+        CODE: pgrp, HEADER: PGID
+            process group ID or, equivalently, the process ID of the process group leader. (alias pgrp).
+            （不懂）
+            进程的组 ID。
+			
+	（进程的 command）
+        
+		CODE: args, HEADER: COMMAND
+        CODE: cmd, HEADER: COMMAND
+        CODE: command, HEADER: COMMAND
+            command with all its arguments as a string. Modifications to the arguments may be shown. The output in this column may contain spaces. A process marked <defunct> is partly dead, waiting to be fully destroyed by its parent. Sometimes the process args will be unavailable; when this happens, ps will instead print the executable name in brackets. (alias cmd, command). See also the comm format keyword, the -f option, and the c option.
+            When specified last, this column will extend to the edge of the display. If ps can not determine display width, as when output is redirected (piped) into a file or another command, the output width is undefined (it may be 80, unlimited, determined by the TERM variable, and so on). The COLUMNS environment variable or --cols option may be used to exactly determine the width in this case. The w or -w option may be also be used to adjust width.
+            
+            进程的程序名，并且包含所有参数。
+            此列的输出一般会包含 space。
+            
+            如果显示的是 '<defunct>'，则表示进程为 partly dead，等待被其父进程完全 destroy。
+            有时，进程的参数无法被获取，此时则会将 command name 放在 '[]' 中来表示。
+            
+            如果放在了输出的最后一列，则此列的内容会一直打印到屏幕的边界。（超出部分会省略）
+            如果 ps 的输出被重定向到了文件中或其他命令，则此列的宽度为无限。（也可能是 80，也可能是由 TERM 环境变量绝对）
+            COLUMNS 环境变量、'--cols' 选项、'w' 选项、'-w' 选项，都可以修改列的宽度。
+
+        CODE: comm, HEADER: COMMAND
+        CODE: ucmd, HEADER: CMD
+        CODE: ucomm, HEADER: COMMAND
+            command name (only the executable name). Modifications to the command name will not be shown. A process marked <defunct> is partly dead, waiting to be fully destroyed by its parent. The output in this column may contain spaces. (alias ucmd, ucomm). See also the args format keyword, the -f option, and the c option.
+            When specified last, this column will extend to the edge of the display. If ps can not determine display width, as when output is redirected (piped) into a file or another command, the output width is undefined (it may be 80, unlimited, determined by the TERM variable, and so on). The COLUMNS environment variable or --cols option may be used to exactly determine the width in this case. The w or -w option may be also be used to adjust width.
+
+            进程的程序名，不包含参数。
+            
+            此列的输出一般会包含 space。
+            如果显示的是 '<defunct>'，则表示进程为 partly dead，等待被其父进程完全 destroy。
+
+            如果放在了输出的最后一列，则此列的内容会一直打印到屏幕的边界。（超出部分会省略）
+            如果 ps 的输出被重定向到了文件中或其他命令，则此列的宽度为无限。（也可能是 80，也可能是由 TERM 环境变量绝对）
+            COLUMNS 环境变量、'--cols' 选项、'w' 选项、'-w' 选项，都可以修改列的宽度。
+			
+		CODE: fname, header: COMMAND
+            first 8 bytes of the base name of the process's executable file. The output in this column may contain spaces.
+            
+			进程的程序文件的文件名的前 8 字节的字符。
+            此列的输出可能包含 space。
+	
+	（进程 uid 和 gid）
+
+        CODE: euid, HEADER: EUID
+        CODE: uid, HEADER: EUID
+            effective user ID (alias uid).
+            进程的有效用户 ID。
+			
+        CODE: euser, HEADER: EUSER
+        CODE: uname, HEADER: EUSER
+        CODE: user, HEADER: USER
+            effective user name. This will be the textual user ID, if it can be obtained and the field width permits, or a decimal representation otherwise. The n option can be used to force the decimal representation. (alias uname, user).
+            进程的有效用户 name。
+            如果 name 无法获取，或 name 超宽，则依然显示 ID。
+            如果使用了 'n' 选项，则依然显示 ID。
+		
+        CODE: egid, HEADER: EGID
+        CODE: gid, HEADER: EGID
+            effective group ID number of the process as a decimal integer. (alias gid).
+            进程的有效组 ID。
+
+        CODE: egroup, HEADER: EGROUP
+        CODE: group, HEADER: EGROUP
+            effective group ID of the process. This will be the textual group ID, if it can be obtained and the field width permits, or a decimal representation otherwise. (alias group).
+            进程的有效组 name。
+            如果无法获取或者 name 超过宽度，则还是显示 ID。
+			
+        CODE: ruid, HEADER: RUID
+            real user ID.
+            进程的 RUID。
+
+        CODE: ruser, HEADERl RUSER
+            real user ID. This will be the textual user ID, if it can be obtained and the field width permits, or a decimal representation otherwise.
+            进程的 RUID name。
+		
+		CODE: rgid, HEADER: RGID
+            real group ID.
+            （不懂）
+            进程的 RGID。
+
+        CODE: fuid, HEADER: FUID
+            filesystem access user ID. (alias fsuid).
+            （不懂）
+            进程的 FUID。
+
+        CODE: fuser, HEADER: FUSER
+            filesystem access user ID. This will be the textual user ID, if it can be obtained and the field width permits, or a decimal representation otherwise.
+            （不懂）
+            进程的 FUID name。
+            如果 name 无法获取，或者 name 超宽，则依然显示 ID。
+		
+        CODE: rgroup, HEADER: RGROUP
+            real group name. This will be the textual group ID, if it can be obtained and the field width permits, or a decimal representation otherwise.
+            进程的 RGID name。
+			
+        CODE: fgid, HEADER: FGID
+        CODE: fsgid, HEADER: FGID
+            filesystem access group ID. (alias fsgid).
+            （不懂）
+            进程的 FGID。
+
+        CODE: fgroup, HEADER: FGROUP
+            filesystem access group ID. This will be the textual group ID, if it can be obtained and the field width permits, or a decimal representation otherwise. (alias fsgroup).
+            （不懂）
+            进程的 FGID name。
+            如果 name 无法获取，或者 name 超宽，则依然显示 ID。
+			
+		CODE: suid, HEADER: SUID
+        CODE: svuid, HEADER:SVUID
+            saved user ID.
+            （不懂）
+            进程的 saved user ID。
+            
+        CODE: suser, HEADER: SUSER
+            saved user name. This will be the textual user ID, if it can be obtained and the field width permits, or a decimal representation otherwise. (alias svuser).
+            （不懂）
+            进程的 saved user name。
+		
+        CODE: sgid, HEADER: SGID
+        CODE: svgid, HEADER: SVGID
+            saved group ID. (alias svgid).
+            （不懂）
+            进程的 saved group ID。
+
+        CODE: sgroup, HEADER: SGROUP
+            saved group name. This will be the textual group ID, if it can be obtained and the field width permits, or a decimal representation otherwise.
+            （不懂）
+            进程的 saved group name。
+			
+        CODE: supgid
+        HEADER: SUPGID
+            group ids of supplementary groups, if any. See getgroups(2).
+            （不懂）
+            
+        CODE: supgrp
+        HEADER: SUPGRP
+            group names of supplementary groups, if any. See getgroups(2).
+            （不懂）
+		
+		CODE: cgroup, HEADER: CGROUP
+            display control groups to which the process belongs.
+            （不懂）
+            进程所述的控制组。
+	
+	（进程的 session）
+			
+        CODE: sess, HEADER: SESS
+        CODE: session, HEADER: SESS
+        CODE: sid, HEADER: SID
+            session ID or, equivalently, the process ID of the session leader. (alias session, sid).
+            进程的 session leader 的 pid。
+			
+        CODE: lsession, HEADER: SESSION
+            displays the login session identifier of a process, if systemd support has been included.
+            （不懂）
+            进程的登录会话 ID。
+
+        CODE: luid, HEADER: LUID
+            displays Login ID associated with a process.
+            （不懂）
+			
+		CODE: ouid, HEADER: OWNER
+            displays the Unix user identifier of the owner of the session of a process, if systemd support has been included.
+            （不懂）
+            输出进程的 session 的 owner。
+			
+	（进程的调度策略）
+	
+        CODE: class, HEADER: CLS
+        CODE: cls, HEADER: CLS
+        CODE: policy, HEADER: POL
+            scheduling class of the process. (alias policy, cls). Field's possible values are:
+                -    not reported
+                TS   SCHED_OTHER    分时调度
+                FF   SCHED_FIFO     实时调度策略，先到先服务
+                RR   SCHED_RR       实时调度策略，时间片轮转
+                B    SCHED_BATCH
+                ISO  SCHED_ISO
+                IDL  SCHED_IDLE
+                DLN  SCHED_DEADLINE
+                ?    unknown value
+
+            进程的调度策略。
+            （关于进程的调度策略，https://blog.csdn.net/u012007928/article/details/40144089）
+        
+        CODE: sched, HEADER: SCH
+            scheduling policy of the process. The policies SCHED_OTHER (SCHED_NORMAL), SCHED_FIFO, SCHED_RR, SCHED_BATCH, SCHED_ISO, SCHED_IDLE and SCHED_DEADLINE are respectively displayed as 0, 1, 2, 3, 4, 5 and 6.
+            进程的调度策略。
+            各个策略使用数字表示
+	
+	（进程的优先级）
+			
+        CODE: pri, HEADER: PRI
+            priority of the process. Higher number means lower priority.
+            进程的优先级，数值越高，优先级越低。
+			
+        CODE: ni, HEADER: NI
+        CODE: nice, HEADER: NI
+            nice value. This ranges from 19 (nicest) to -20 (not nice to others), see nice(1). (alias nice).
+            进程的 nice 值。
+			
+        CODE: rtprio, HEADER: RTPRIO
+            realtime priority.
+            进程的实时优先级
+	
+	（进程的 tty）
+			
+        CODE: tname, HEADER: TTY
+        CODE: tt, HEADER: TT
+        CODE: tty, HEADER: TT
+            controlling tty (terminal). (alias tt, tty).
+            进程的控制终端。
+
+        CODE: tpgid, HEADER: TPGID
+            ID of the foreground process group on the tty (terminal) that the process is connected to, or -1 if the process is not connected to a tty.
+			进程所在的 tty 的前台进程组的 ID。
+			如果进程不属于某个 tty，则值为 '-1'
+        
+	（进程的时间）
+		
+		CODE: bsdstart, HEADER: START
+        CODE: lstart, HEADER: STARTED
+        CODE: start, HEADER: STARTED
+        CODE: start_time, HEADER: START
+        CODE: stime, HEADER: STIME
+            进程的启动时刻。
+            （这五种 CODE 实际对时间的显示格式均略有区别，但不值得关注）
+
+        CODE: etime, HEADER: ELAPSED
+            elapsed time since the process was started, in the form [[DD-]hh:]mm:ss.
+            进程的持续的时间。
+            为进程从启动时到现在的时间。
+            显示为 DD-HH:MM:SS 格式。
+
+        CODE: etimes, HEADER: ELAPSED
+            elapsed time since the process was started, in seconds.
+			进程的持续时间
+            进程从启动到现在的时间。
+            显示为秒数。
+		
+	（进程状态）
+        
+		CODE: f, HEADER: F
+        CODE: flag, HEADER: F
+        CODE: flags, HEADER: F
+            flags associated with the process, see the PROCESS FLAGS section. (alias flag, flags).
+            进程的旗标。
+            关于进程的旗标，见 PROCESS FLAGS 一节。
+			
+        CODE: s, HEADER: S
+        CODE: state, HEADER: S
+            minimal state display (one character). See section PROCESS STATE CODES for the different values. See also stat if you want additional information displayed. (alias state).
+            进程的状态。
+            最低限度的信息量，仅一个字符。
+        
+        CODE: stat, HEADER: STAT
+            multi-character process state. See section PROCESS STATE CODES for the different values meaning. See also s and state if you just want the first character displayed.
+            进程的状态，多字符。
+		
+	（进程 CPU 使用）
+        
+		CODE: %cpu, HEADER: %CPU
+        CODE: pcpu, HEADER: %CPU
+            cpu utilization of the process in "##.#" format. Currently, it is the CPU time used divided by the time the process has been running (cputime/realtime ratio), expressed as a percentage. It will not add up to 100% unless you are lucky. (alias pcpu).
+            进程的 CPU 利用率。
+			格式为 '##.#' 方式。
+            表示使用 cpu 的时间占据进程总时间的比例，即 cputime/realtime。
+            理论上，不应该上涨到 100%。
+		
+        CODE: bsdtime, HEADER: TIME
+            accumulated cpu time, user + system. The display format is usually "MMM:SS", but can be shifted to the right if the process used more than 999 minutes of cpu time.
+            进程的累积 CPU 时间。
+            时间如果超过了 999 分钟，则会归零。
+
+		CODE: c, HEADER: C
+            processor utilization. Currently, this is the integer value of the percent usage over the lifetime of the process. (see %cpu).
+            进程的处理器使用率。
+			
+        CODE: cp, HEADER: CP
+            per-mill (tenths of a percent) CPU usage. (see %cpu).
+            进程的 CPU 利用率，单位为千分之一。
+
+        CODE: cputime, HEADER: TIME
+		CODE: time, HEADER: TIME
+            cumulative CPU time, "[DD-]hh:mm:ss" format. (alias time).
+            进程的累积 cpu 时间。
+        
+        CODE: sgi_p, HEADER: P
+            processor that the process is currently executing on. Displays "*" if the process is not currently running or runnable.
+            进程当前正在哪个处理器上执行。
+            如果进程当前不是 running 或 runnable，则显示为 '*'
+			
+        CODE: psr, HEADER: PSR
+            processor that process is currently assigned to.
+            进程当期被分配到的处理器。
+		
+	（进程内存使用）
+		
+		CODE: %mem, HEADER: %MEM
+        CODE: pmem, HEADER: %MEM
+            ratio of the process's resident set size to the physical memory on the machine, expressed as a percentage. (alias pmem).
+            内存使用率。
+            表示进程所占用的内存相对于总物理内存的比例。
+			
+        CODE: drs, HEADER: DRS
+            data resident set size, the amount of physical memory devoted to other than executable code.
+            数据占用大小，也就是物理内存占用空间减去执行程序代码占用空间。
+			
+        CODE: trs, HEADER: TRS
+            text resident set size, the amount of physical memory devoted to executable code.
+			进程的程序代码所占据的物理内存空间大小。
+			TRS 表示 Text Resident set Size
+
+        CODE: rss, HEADER: RSS
+        CODE: rssize, HEADER: RSS
+        CODE: rsz, HEADER: RSS
+            resident set size, the non-swapped physical memory that a task has used (in kiloBytes). (alias rssize, rsz).
+            进程对物理内存的真实使用大写，不包括被 swap 掉的大小。
+            RSS 表示 Resident Set Size。
+			
+        CODE: size, HEADER: SIZE
+            approximate amount of swap space that would be required if the process were to dirty all writable pages and then be swapped out. This number is very rough!
+            进程预计需要的 swap 空间，如果进程把其 page 全部 dirty 掉并且 swap 到外面。
+            此列的内容只是预估，非常地不准。
+			
+        CODE: sz, HEADER: SZ
+        CODE: sz, HEADER: SZ
+            size in physical pages of the core image of the process. This includes text, data, and stack space. Device mappings are currently excluded; this is subject to change. See vsz and rss.
+			（不懂）
+			进程的核心镜像的物理页的大小。
+			
+		CODE: vsz, HEADER: VSZ
+        CODE: vsize, HEADER: VSZ
+            virtual memory size of the process in KiB (1024-byte units). Device mappings are currently excluded; this is subject to change. (alias vsize).
+            进程的虚拟内存大小。
+		
+	（线程相关）
+		
+        CODE: tid, HEADER: TID
+        CODE: lwp, HEADER: LWP
+        CODE: spid, HEADER: SPID
+            the unique number representing a dispatchable entity (alias lwp, spid). 
+            This value may also appear as:
+                a process ID (pid); 
+                a process group ID (pgrp); 
+                a session ID for the session leader (sid); 
+                a thread group ID for the thread group leader (tgid); 
+                and a tty process group ID for the process group leader (tpgid).
+			线程的 ID。
+			tid 也可能在以下情况被使用：XXXX。
+        
+		CODE: tgid, HEADER: TGID
+            a number representing the thread group to which a task belongs (alias pid). It is the process ID of the thread group leader.
+			线程的 gid，为线程组的 leader 的进程的 pid。
+
+        CODE: thcount, HEADER: THCNT
+        CODE: nlwp, HEADER: NLWP
+            number of lwps (threads) in the process. (alias thcount).
+			当前进程所拥有的线程的数量。
+        
+		CODE: thcgr, HEADER: THCGR
+            display control groups to which the thread belongs.
+			（不懂）
+			线程属于哪个控制组
+		
+	（进程寄存器相关）
+		
+        CODE: eip, HEADER: EIP
+            instruction pointer.
+            （不懂）
+            结构指针。
+
+        CODE: esp, HEADER: ESP
+            stack pointer.
+            （不懂）
+            堆指针。
+			
+        CODE: stackp, HEADER: STACKP
+            address of the bottom (start) of stack for the process.
+            进程的 stack 的 bottom 的地址。
+			
+	（进程 signal）
+		
+        CODE: blocked, HEADER: BLOCKED
+        CODE: sigmask, HEADER: BLOCKED
+            mask of the blocked signals, see signal(7). According to the width of the field, a 32 or 64-bit mask in hexadecimal format is displayed. (alias sig_block, sigmask).
+            （不懂）
+            被 block 的信号的掩码。
+            会根据列的宽度，输出 32-bit 或 64-bit 的十六进制掩码
+		
+        CODE: caught, HEADER: CAUGHT
+        CODE: sig_cache, HEADER: CAUGHT
+        CODE: sigcatch, HEADER: CAUGHT
+            mask of the caught signals, see signal(7). According to the width of the field, a 32 or 64 bits mask in hexadecimal format is displayed. (alias sig_catch, sigcatch).
+            （不懂）
+            捕捉到的信号的掩码。
+            会根据列的宽度，输出 32-bit 或 64-bit 的十六进制掩码
+			
+		CODE: ignored, HEADER: IGNORED
+        CODE: sigignore, HEADER: IGNORED
+            mask of the ignored signals, see signal(7). According to the width of the field, a 32 or 64 bits mask in hexadecimal format is displayed. (alias sig_ignore, sigignore).
+            （不懂）
+            忽略的信号的掩码。
+            会根据列的宽度，输出 32-bit 或 64-bit 的十六进制掩码
+			
+        CODE: pending, HEADER: PENDING
+        CODE: sig, HEADER: PENDING
+            mask of the pending signals. See signal(7). Signals pending on the process are distinct from signals pending on individual threads. Use the m option or the -m option to see both. According to the width of the field, a 32 or 64 bits mask in hexadecimal format is displayed. (alias sig).
+            （不懂）
+            输出进程的 pending 的信号的掩码。
+            进程的 pending 的信号与线程的 pending 的信号不同，使用 '-m' 选项，可以两者均查看。
+            
+	（进程 namespace）
+
+        CODE: ipcns, HEADER: IPCNS
+            Unique inode number describing the namespace the process belongs to. See namespaces(7).
+            （不懂）
+			
+        CODE: mntns, HEADER: MNTNS
+        CODE: netns, HEADER: NETNS
+            Unique inode number describing the namespace the process belongs to. See namespaces(7).
+            （不懂）
+			
+        CODE: pidns, HEADER: PIDNS
+            Unique inode number describing the namespace the process belongs to. See namespaces(7).
+            （不懂）
+			
+		CODE: userns, HEADER: USERNS
+        CODE: utsns, HEADER: UTSNS
+            Unique inode number describing the namespace the process belongs to. See namespaces(7).
+			（不懂）
+	（其他）
+	
+        CODE: unit, HEADER: UNIT
+            displays unit which a process belongs to, if systemd support has been included.
+			进程属于哪个 unit。
+
+        CODE: uunit, HEADER: UUNIT
+            displays user unit which a process belongs to, if systemd support has been included.
+			进程属于哪个 user unit。
+			
+        CODE: machine, HEADER: MACHINE
+            displays the machine name for processes assigned to VM or container, if systemd support has been included.
+            进程所在的设备类型，如 VM 或容器。
+
+        CODE: label, HEADER: LABEL
+            security label, most commonly used for SELinux context data. This is for the Mandatory Access Control ("MAC") found on high-security systems.
+            进程的安全标签。
+            通常被 selinux 用作安全性文本。
+			
+        CODE: maj_flt, HEADER: MAJFLT
+            The number of major page faults that have occurred with this process.
+            （不懂）
+
+        CODE: min_flt, HEADER: MINFLT
+            The number of minor page faults that have occurred with this process.
+            （不懂）
+		
+		CODE: wchan, HEADER: WCHAN
+        CODE: nwchan, HEADER: WCHAN
+            wchan: name of the kernel function in which the process is sleeping, a "-" if the process is running, or a "*" if the process is multi-threaded and ps is not displaying threads.
+            whcan: address of the kernel function where the process is sleeping (use wchan if you want the kernel function name). Running tasks will display a dash ('-') in this column.
+            （不懂）
+            （WCHAN 表示 waiting channel）
+            当进程正在休眠时，wchan 为打印所处的内核函数的 name，nwchan 为打印所处的内核函数的 address。
+            对于 running 的进程，输出为 '-'。
+            如果进程为多线程，并且 ps 没有设置显示线程，则 wchan 输出为 '*'。
+			
+        CODE: seat, HEADER: SEAT
+            displays the identifier associated with all hardware devices assigned to a specific workplace, if systemd support has been included.
+            （不懂）
+
+        CODE: slice, HEADER: SLICE
+            displays the slice unit which a process belongs to, if systemd support has been included.
+            （不懂）
+			
+ENVIRONMENT VARIABLES
+        The following environment variables could affect ps.
+        
+		In general, it is a bad idea to set these variables. The one exception is CMD_ENV or PS_PERSONALITY, which could be set to Linux for normal systems. Without that setting, ps follows the useless and bad parts of the Unix98 standard.
+		
+		以下为 ps 的一些环境变量
+		
+		大多数情况下，不要修改这些环境变量。
+		CMD_ENV 和 PS_PERSONALITY 有可能需要改为适合 linux，否则 ps 就会遵循 Unix98 标准，会很垃圾。
+		
+
+        COLUMNS
+            Override default display width.
+			设置 ps 的屏幕宽度
+
+        LINES
+            Override default display height.
+			设置 ps 的屏幕高度
+
+        PS_PERSONALITY
+            Set to one of posix, old, linux, bsd, sun, digital... (see section PERSONALITY below).
+			设置 ps 的风格，如 linux、posix 等
+
+        CMD_ENV
+            Set to one of posix, old, linux, bsd, sun, digital... (see section PERSONALITY below).
+			设置 ps 的环境变量风格，如 linux 等
+
+        I_WANT_A_BROKEN_PS
+            Force obsolete command line interpretation.
+			要求 ps 识别已废弃的命令
+
+        LC_TIME
+            Date format.
+			设置 ps 的时间格式
+
+        PS_COLORS
+            Not currently supported.
+			（目前不支持）
+
+        PS_FORMAT
+            Default output format override. You may set this to a format string of the type used for the -o option. The DefSysV and DefBSD values are particularly useful.
+			设置 ps 的默认输出格式。
+			可以设定为一个 '-o' 选项的 format 列表。
+			DefSysV 和 DefBSD 是两个非常有用的值。
+			
+        PS_SYSMAP
+        PS_SYSTEM_MAP
+            Default namelist (System.map) location.
+			（不懂）
+
+        POSIXLY_CORRECT
+            Don't find excuses to ignore bad "features".
+			（不懂）
+
+        POSIX2
+            When set to "on", acts as POSIXLY_CORRECT.
+			（不懂）
+
+        UNIX95
+            Don't find excuses to ignore bad "features".
+			（不懂）
+
+        _XPG
+            Cancel CMD_ENV=irix non-standard behavior.
+			（不懂）
+
+
+PERSONALITY 各种 ps 风格
+
+        390        like the OS/390 OpenEdition ps
+        aix        like AIX ps
+        bsd        like FreeBSD ps (totally non-standard)
+        compaq     like Digital Unix ps
+        debian     like the old Debian ps
+        digital    like Tru64 (was Digital Unix, was OSF/1) ps
+        gnu        like the old Debian ps
+        hp         like HP-UX ps
+        hpux       like HP-UX ps
+        irix       like Irix ps
+        linux      ***** recommended *****
+        old        like the original Linux ps (totally non-standard)
+        os390      like OS/390 Open Edition ps
+        posix      standard
+        s390       like OS/390 Open Edition ps
+        sco        like SCO ps
+        sgi        like Irix ps
+        solaris2   like Solaris 2+ (SunOS 5) ps
+        sunos4     like SunOS 4 (Solaris 1) ps (totally non-standard)
+        svr4       standard
+        sysv       standard
+        tru64      like Tru64 (was Digital Unix, was OSF/1) ps
+        unix       standard
+        unix95     standard
+        unix98     standard
+
+OTHERS
+
+    SEE ALSO
+        pgrep(1), pstree(1), top(1), proc(5).
+
+    STANDARDS
+        This ps conforms to:
+
+        1    Version 2 of the Single Unix Specification
+        2    The Open Group Technical Standard Base Specifications, Issue 6
+        3    IEEE Std 1003.1, 2004 Edition
+        4    X/Open System Interfaces Extension [UP XSI]
+        5    ISO/IEC 9945:2003
+
+    AUTHOR
+        ps was originally written by Branko Lankester (lankeste@fwi.uva.nl). Michael K. Johnson (johnsonm@redhat.com) re-wrote it significantly to use the proc filesystem, changing a few things in the process. Michael Shields (mjshield@nyx.cs.du.edu) added the pid-list feature. Charles Blake (cblake@bbn.com) added multi-level sorting, the dirent-style library, the device name-to-number mmaped database, the approximate binary search directly on System.map, and many code and documentation cleanups. David Mossberger-Tang wrote the generic BFD support for psupdate. Albert Cahalan (albert@users.sf.net) rewrote ps for full Unix98 and BSD support, along with some ugly hacks for obsolete and foreign syntax.
+
+        Please send bug reports to (procps@freelists.org). No subscription is required or suggested.
+
+procps-ng
+July 2014

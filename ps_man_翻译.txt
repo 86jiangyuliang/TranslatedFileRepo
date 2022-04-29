@@ -17,22 +17,22 @@ PROCESS FLAGS 进程的旗标
 PROCESS STATE CODES 进程状态代码
 OBSOLETE SORT KEYS （不翻译）
 AIX FORMAT DESCRIPTORS（不翻译）
-	（进程基本信息）
-	（进程的 command）
-	（进程 uid 和 gid）
-	（进程的 session）
-	（进程的调度策略）
-	（进程的优先级）
-	（进程的 tty）
-	（进程的时间）
-	（进程状态）
-	（进程 CPU 使用）
-	（进程内存使用）
-	（线程相关）
-	（进程寄存器相关）
-	（进程 signal）
-	（进程 namespace）
-	（其他）
+    （进程基本信息）
+    （进程的 command）
+    （进程 uid 和 gid）
+    （进程的 session）
+    （进程的调度策略）
+    （进程的优先级）
+    （进程的 tty）
+    （进程的时间）
+    （进程状态）
+    （进程 CPU 使用）
+    （进程内存使用）
+    （线程相关）
+    （进程寄存器相关）
+    （进程 signal）
+    （进程 namespace）
+    （其他）
 STANDARD FORMAT SPECIFIERS 标准格式指示符
 ENVIRONMENT VARIABLES 各种环境变量
 PERSONALITY 各种 ps 风格
@@ -55,9 +55,9 @@ OTHERS
     11. 什么是进程的 saved group？
     12. 什么是进程的 slice？
     13. 什么是进程的 supplementary groups？
-	14. 什么是 physical pages of the core image of the process？
-	15. 什么是线程的 thread group leader？
-	16. 什么是 user unit？
+    14. 什么是 physical pages of the core image of the process？
+    15. 什么是线程的 thread group leader？
+    16. 什么是 user unit？
 
 说明：
     1. 对于 BSD 风格的选项，由于个人不喜欢，且 BSD 选项与 UNIX 选项混用时经常冲突，因而大部分 BSD 选项不进行翻译，除非是很常用的，或者是 BSD 所独有的。
@@ -740,26 +740,26 @@ STANDARD FORMAT SPECIFIERS 标准格式指示符
         以下关键字，可以用在 '-o' 选项中来控制输出信息格式，也可以用在 --sort 选项中来对进程排序
 
         有些关键字可能无法用在排序中。
-		
-	（进程基本信息）
-	
+        
+    （进程基本信息）
+    
         CODE: pid, HEADER: PID
             a number representing the process ID (alias tgid).
             进程的 pid。
-		
+        
         CODE: ppid, HEADER: PPID
             parent process ID.
             父进程的 pid。
-			
-		CODE: pgid, HEADER: PGID
+            
+        CODE: pgid, HEADER: PGID
         CODE: pgrp, HEADER: PGID
             process group ID or, equivalently, the process ID of the process group leader. (alias pgrp).
             （不懂）
             进程的组 ID。
-			
-	（进程的 command）
+            
+    （进程的 command）
         
-		CODE: args, HEADER: COMMAND
+        CODE: args, HEADER: COMMAND
         CODE: cmd, HEADER: COMMAND
         CODE: command, HEADER: COMMAND
             command with all its arguments as a string. Modifications to the arguments may be shown. The output in this column may contain spaces. A process marked <defunct> is partly dead, waiting to be fully destroyed by its parent. Sometimes the process args will be unavailable; when this happens, ps will instead print the executable name in brackets. (alias cmd, command). See also the comm format keyword, the -f option, and the c option.
@@ -789,20 +789,20 @@ STANDARD FORMAT SPECIFIERS 标准格式指示符
             如果放在了输出的最后一列，则此列的内容会一直打印到屏幕的边界。（超出部分会省略）
             如果 ps 的输出被重定向到了文件中或其他命令，则此列的宽度为无限。（也可能是 80，也可能是由 TERM 环境变量绝对）
             COLUMNS 环境变量、'--cols' 选项、'w' 选项、'-w' 选项，都可以修改列的宽度。
-			
-		CODE: fname, header: COMMAND
+            
+        CODE: fname, header: COMMAND
             first 8 bytes of the base name of the process's executable file. The output in this column may contain spaces.
             
-			进程的程序文件的文件名的前 8 字节的字符。
+            进程的程序文件的文件名的前 8 字节的字符。
             此列的输出可能包含 space。
-	
-	（进程 uid 和 gid）
+    
+    （进程 uid 和 gid）
 
         CODE: euid, HEADER: EUID
         CODE: uid, HEADER: EUID
             effective user ID (alias uid).
             进程的有效用户 ID。
-			
+            
         CODE: euser, HEADER: EUSER
         CODE: uname, HEADER: EUSER
         CODE: user, HEADER: USER
@@ -810,7 +810,7 @@ STANDARD FORMAT SPECIFIERS 标准格式指示符
             进程的有效用户 name。
             如果 name 无法获取，或 name 超宽，则依然显示 ID。
             如果使用了 'n' 选项，则依然显示 ID。
-		
+        
         CODE: egid, HEADER: EGID
         CODE: gid, HEADER: EGID
             effective group ID number of the process as a decimal integer. (alias gid).
@@ -821,7 +821,7 @@ STANDARD FORMAT SPECIFIERS 标准格式指示符
             effective group ID of the process. This will be the textual group ID, if it can be obtained and the field width permits, or a decimal representation otherwise. (alias group).
             进程的有效组 name。
             如果无法获取或者 name 超过宽度，则还是显示 ID。
-			
+            
         CODE: ruid, HEADER: RUID
             real user ID.
             进程的 RUID。
@@ -829,8 +829,8 @@ STANDARD FORMAT SPECIFIERS 标准格式指示符
         CODE: ruser, HEADERl RUSER
             real user ID. This will be the textual user ID, if it can be obtained and the field width permits, or a decimal representation otherwise.
             进程的 RUID name。
-		
-		CODE: rgid, HEADER: RGID
+        
+        CODE: rgid, HEADER: RGID
             real group ID.
             （不懂）
             进程的 RGID。
@@ -845,11 +845,11 @@ STANDARD FORMAT SPECIFIERS 标准格式指示符
             （不懂）
             进程的 FUID name。
             如果 name 无法获取，或者 name 超宽，则依然显示 ID。
-		
+        
         CODE: rgroup, HEADER: RGROUP
             real group name. This will be the textual group ID, if it can be obtained and the field width permits, or a decimal representation otherwise.
             进程的 RGID name。
-			
+            
         CODE: fgid, HEADER: FGID
         CODE: fsgid, HEADER: FGID
             filesystem access group ID. (alias fsgid).
@@ -861,8 +861,8 @@ STANDARD FORMAT SPECIFIERS 标准格式指示符
             （不懂）
             进程的 FGID name。
             如果 name 无法获取，或者 name 超宽，则依然显示 ID。
-			
-		CODE: suid, HEADER: SUID
+            
+        CODE: suid, HEADER: SUID
         CODE: svuid, HEADER:SVUID
             saved user ID.
             （不懂）
@@ -872,7 +872,7 @@ STANDARD FORMAT SPECIFIERS 标准格式指示符
             saved user name. This will be the textual user ID, if it can be obtained and the field width permits, or a decimal representation otherwise. (alias svuser).
             （不懂）
             进程的 saved user name。
-		
+        
         CODE: sgid, HEADER: SGID
         CODE: svgid, HEADER: SVGID
             saved group ID. (alias svgid).
@@ -883,7 +883,7 @@ STANDARD FORMAT SPECIFIERS 标准格式指示符
             saved group name. This will be the textual group ID, if it can be obtained and the field width permits, or a decimal representation otherwise.
             （不懂）
             进程的 saved group name。
-			
+            
         CODE: supgid
         HEADER: SUPGID
             group ids of supplementary groups, if any. See getgroups(2).
@@ -893,20 +893,20 @@ STANDARD FORMAT SPECIFIERS 标准格式指示符
         HEADER: SUPGRP
             group names of supplementary groups, if any. See getgroups(2).
             （不懂）
-		
-		CODE: cgroup, HEADER: CGROUP
+        
+        CODE: cgroup, HEADER: CGROUP
             display control groups to which the process belongs.
             （不懂）
             进程所述的控制组。
-	
-	（进程的 session）
-			
+    
+    （进程的 session）
+            
         CODE: sess, HEADER: SESS
         CODE: session, HEADER: SESS
         CODE: sid, HEADER: SID
             session ID or, equivalently, the process ID of the session leader. (alias session, sid).
             进程的 session leader 的 pid。
-			
+            
         CODE: lsession, HEADER: SESSION
             displays the login session identifier of a process, if systemd support has been included.
             （不懂）
@@ -915,14 +915,14 @@ STANDARD FORMAT SPECIFIERS 标准格式指示符
         CODE: luid, HEADER: LUID
             displays Login ID associated with a process.
             （不懂）
-			
-		CODE: ouid, HEADER: OWNER
+            
+        CODE: ouid, HEADER: OWNER
             displays the Unix user identifier of the owner of the session of a process, if systemd support has been included.
             （不懂）
             输出进程的 session 的 owner。
-			
-	（进程的调度策略）
-	
+            
+    （进程的调度策略）
+    
         CODE: class, HEADER: CLS
         CODE: cls, HEADER: CLS
         CODE: policy, HEADER: POL
@@ -944,24 +944,24 @@ STANDARD FORMAT SPECIFIERS 标准格式指示符
             scheduling policy of the process. The policies SCHED_OTHER (SCHED_NORMAL), SCHED_FIFO, SCHED_RR, SCHED_BATCH, SCHED_ISO, SCHED_IDLE and SCHED_DEADLINE are respectively displayed as 0, 1, 2, 3, 4, 5 and 6.
             进程的调度策略。
             各个策略使用数字表示
-	
-	（进程的优先级）
-			
+    
+    （进程的优先级）
+            
         CODE: pri, HEADER: PRI
             priority of the process. Higher number means lower priority.
             进程的优先级，数值越高，优先级越低。
-			
+            
         CODE: ni, HEADER: NI
         CODE: nice, HEADER: NI
             nice value. This ranges from 19 (nicest) to -20 (not nice to others), see nice(1). (alias nice).
             进程的 nice 值。
-			
+            
         CODE: rtprio, HEADER: RTPRIO
             realtime priority.
             进程的实时优先级
-	
-	（进程的 tty）
-			
+    
+    （进程的 tty）
+            
         CODE: tname, HEADER: TTY
         CODE: tt, HEADER: TT
         CODE: tty, HEADER: TT
@@ -970,12 +970,12 @@ STANDARD FORMAT SPECIFIERS 标准格式指示符
 
         CODE: tpgid, HEADER: TPGID
             ID of the foreground process group on the tty (terminal) that the process is connected to, or -1 if the process is not connected to a tty.
-			进程所在的 tty 的前台进程组的 ID。
-			如果进程不属于某个 tty，则值为 '-1'
+            进程所在的 tty 的前台进程组的 ID。
+            如果进程不属于某个 tty，则值为 '-1'
         
-	（进程的时间）
-		
-		CODE: bsdstart, HEADER: START
+    （进程的时间）
+        
+        CODE: bsdstart, HEADER: START
         CODE: lstart, HEADER: STARTED
         CODE: start, HEADER: STARTED
         CODE: start_time, HEADER: START
@@ -991,19 +991,19 @@ STANDARD FORMAT SPECIFIERS 标准格式指示符
 
         CODE: etimes, HEADER: ELAPSED
             elapsed time since the process was started, in seconds.
-			进程的持续时间
+            进程的持续时间
             进程从启动到现在的时间。
             显示为秒数。
-		
-	（进程状态）
         
-		CODE: f, HEADER: F
+    （进程状态）
+        
+        CODE: f, HEADER: F
         CODE: flag, HEADER: F
         CODE: flags, HEADER: F
             flags associated with the process, see the PROCESS FLAGS section. (alias flag, flags).
             进程的旗标。
             关于进程的旗标，见 PROCESS FLAGS 一节。
-			
+            
         CODE: s, HEADER: S
         CODE: state, HEADER: S
             minimal state display (one character). See section PROCESS STATE CODES for the different values. See also stat if you want additional information displayed. (alias state).
@@ -1013,32 +1013,32 @@ STANDARD FORMAT SPECIFIERS 标准格式指示符
         CODE: stat, HEADER: STAT
             multi-character process state. See section PROCESS STATE CODES for the different values meaning. See also s and state if you just want the first character displayed.
             进程的状态，多字符。
-		
-	（进程 CPU 使用）
         
-		CODE: %cpu, HEADER: %CPU
+    （进程 CPU 使用）
+        
+        CODE: %cpu, HEADER: %CPU
         CODE: pcpu, HEADER: %CPU
             cpu utilization of the process in "##.#" format. Currently, it is the CPU time used divided by the time the process has been running (cputime/realtime ratio), expressed as a percentage. It will not add up to 100% unless you are lucky. (alias pcpu).
             进程的 CPU 利用率。
-			格式为 '##.#' 方式。
+            格式为 '##.#' 方式。
             表示使用 cpu 的时间占据进程总时间的比例，即 cputime/realtime。
             理论上，不应该上涨到 100%。
-		
+        
         CODE: bsdtime, HEADER: TIME
             accumulated cpu time, user + system. The display format is usually "MMM:SS", but can be shifted to the right if the process used more than 999 minutes of cpu time.
             进程的累积 CPU 时间。
             时间如果超过了 999 分钟，则会归零。
 
-		CODE: c, HEADER: C
+        CODE: c, HEADER: C
             processor utilization. Currently, this is the integer value of the percent usage over the lifetime of the process. (see %cpu).
             进程的处理器使用率。
-			
+            
         CODE: cp, HEADER: CP
             per-mill (tenths of a percent) CPU usage. (see %cpu).
             进程的 CPU 利用率，单位为千分之一。
 
         CODE: cputime, HEADER: TIME
-		CODE: time, HEADER: TIME
+        CODE: time, HEADER: TIME
             cumulative CPU time, "[DD-]hh:mm:ss" format. (alias time).
             进程的累积 cpu 时间。
         
@@ -1046,27 +1046,27 @@ STANDARD FORMAT SPECIFIERS 标准格式指示符
             processor that the process is currently executing on. Displays "*" if the process is not currently running or runnable.
             进程当前正在哪个处理器上执行。
             如果进程当前不是 running 或 runnable，则显示为 '*'
-			
+            
         CODE: psr, HEADER: PSR
             processor that process is currently assigned to.
             进程当期被分配到的处理器。
-		
-	（进程内存使用）
-		
-		CODE: %mem, HEADER: %MEM
+        
+    （进程内存使用）
+        
+        CODE: %mem, HEADER: %MEM
         CODE: pmem, HEADER: %MEM
             ratio of the process's resident set size to the physical memory on the machine, expressed as a percentage. (alias pmem).
             内存使用率。
             表示进程所占用的内存相对于总物理内存的比例。
-			
+            
         CODE: drs, HEADER: DRS
             data resident set size, the amount of physical memory devoted to other than executable code.
             数据占用大小，也就是物理内存占用空间减去执行程序代码占用空间。
-			
+            
         CODE: trs, HEADER: TRS
             text resident set size, the amount of physical memory devoted to executable code.
-			进程的程序代码所占据的物理内存空间大小。
-			TRS 表示 Text Resident set Size
+            进程的程序代码所占据的物理内存空间大小。
+            TRS 表示 Text Resident set Size
 
         CODE: rss, HEADER: RSS
         CODE: rssize, HEADER: RSS
@@ -1074,25 +1074,25 @@ STANDARD FORMAT SPECIFIERS 标准格式指示符
             resident set size, the non-swapped physical memory that a task has used (in kiloBytes). (alias rssize, rsz).
             进程对物理内存的真实使用大写，不包括被 swap 掉的大小。
             RSS 表示 Resident Set Size。
-			
+            
         CODE: size, HEADER: SIZE
             approximate amount of swap space that would be required if the process were to dirty all writable pages and then be swapped out. This number is very rough!
             进程预计需要的 swap 空间，如果进程把其 page 全部 dirty 掉并且 swap 到外面。
             此列的内容只是预估，非常地不准。
-			
+            
         CODE: sz, HEADER: SZ
         CODE: sz, HEADER: SZ
             size in physical pages of the core image of the process. This includes text, data, and stack space. Device mappings are currently excluded; this is subject to change. See vsz and rss.
-			（不懂）
-			进程的核心镜像的物理页的大小。
-			
-		CODE: vsz, HEADER: VSZ
+            （不懂）
+            进程的核心镜像的物理页的大小。
+            
+        CODE: vsz, HEADER: VSZ
         CODE: vsize, HEADER: VSZ
             virtual memory size of the process in KiB (1024-byte units). Device mappings are currently excluded; this is subject to change. (alias vsize).
             进程的虚拟内存大小。
-		
-	（线程相关）
-		
+        
+    （线程相关）
+        
         CODE: tid, HEADER: TID
         CODE: lwp, HEADER: LWP
         CODE: spid, HEADER: SPID
@@ -1103,25 +1103,25 @@ STANDARD FORMAT SPECIFIERS 标准格式指示符
                 a session ID for the session leader (sid); 
                 a thread group ID for the thread group leader (tgid); 
                 and a tty process group ID for the process group leader (tpgid).
-			线程的 ID。
-			tid 也可能在以下情况被使用：XXXX。
+            线程的 ID。
+            tid 也可能在以下情况被使用：XXXX。
         
-		CODE: tgid, HEADER: TGID
+        CODE: tgid, HEADER: TGID
             a number representing the thread group to which a task belongs (alias pid). It is the process ID of the thread group leader.
-			线程的 gid，为线程组的 leader 的进程的 pid。
+            线程的 gid，为线程组的 leader 的进程的 pid。
 
         CODE: thcount, HEADER: THCNT
         CODE: nlwp, HEADER: NLWP
             number of lwps (threads) in the process. (alias thcount).
-			当前进程所拥有的线程的数量。
+            当前进程所拥有的线程的数量。
         
-		CODE: thcgr, HEADER: THCGR
+        CODE: thcgr, HEADER: THCGR
             display control groups to which the thread belongs.
-			（不懂）
-			线程属于哪个控制组
-		
-	（进程寄存器相关）
-		
+            （不懂）
+            线程属于哪个控制组
+        
+    （进程寄存器相关）
+        
         CODE: eip, HEADER: EIP
             instruction pointer.
             （不懂）
@@ -1131,20 +1131,20 @@ STANDARD FORMAT SPECIFIERS 标准格式指示符
             stack pointer.
             （不懂）
             堆指针。
-			
+            
         CODE: stackp, HEADER: STACKP
             address of the bottom (start) of stack for the process.
             进程的 stack 的 bottom 的地址。
-			
-	（进程 signal）
-		
+            
+    （进程 signal）
+        
         CODE: blocked, HEADER: BLOCKED
         CODE: sigmask, HEADER: BLOCKED
             mask of the blocked signals, see signal(7). According to the width of the field, a 32 or 64-bit mask in hexadecimal format is displayed. (alias sig_block, sigmask).
             （不懂）
             被 block 的信号的掩码。
             会根据列的宽度，输出 32-bit 或 64-bit 的十六进制掩码
-		
+        
         CODE: caught, HEADER: CAUGHT
         CODE: sig_cache, HEADER: CAUGHT
         CODE: sigcatch, HEADER: CAUGHT
@@ -1152,14 +1152,14 @@ STANDARD FORMAT SPECIFIERS 标准格式指示符
             （不懂）
             捕捉到的信号的掩码。
             会根据列的宽度，输出 32-bit 或 64-bit 的十六进制掩码
-			
-		CODE: ignored, HEADER: IGNORED
+            
+        CODE: ignored, HEADER: IGNORED
         CODE: sigignore, HEADER: IGNORED
             mask of the ignored signals, see signal(7). According to the width of the field, a 32 or 64 bits mask in hexadecimal format is displayed. (alias sig_ignore, sigignore).
             （不懂）
             忽略的信号的掩码。
             会根据列的宽度，输出 32-bit 或 64-bit 的十六进制掩码
-			
+            
         CODE: pending, HEADER: PENDING
         CODE: sig, HEADER: PENDING
             mask of the pending signals. See signal(7). Signals pending on the process are distinct from signals pending on individual threads. Use the m option or the -m option to see both. According to the width of the field, a 32 or 64 bits mask in hexadecimal format is displayed. (alias sig).
@@ -1167,35 +1167,35 @@ STANDARD FORMAT SPECIFIERS 标准格式指示符
             输出进程的 pending 的信号的掩码。
             进程的 pending 的信号与线程的 pending 的信号不同，使用 '-m' 选项，可以两者均查看。
             
-	（进程 namespace）
+    （进程 namespace）
 
         CODE: ipcns, HEADER: IPCNS
             Unique inode number describing the namespace the process belongs to. See namespaces(7).
             （不懂）
-			
+            
         CODE: mntns, HEADER: MNTNS
         CODE: netns, HEADER: NETNS
             Unique inode number describing the namespace the process belongs to. See namespaces(7).
             （不懂）
-			
+            
         CODE: pidns, HEADER: PIDNS
             Unique inode number describing the namespace the process belongs to. See namespaces(7).
             （不懂）
-			
-		CODE: userns, HEADER: USERNS
+            
+        CODE: userns, HEADER: USERNS
         CODE: utsns, HEADER: UTSNS
             Unique inode number describing the namespace the process belongs to. See namespaces(7).
-			（不懂）
-	（其他）
-	
+            （不懂）
+    （其他）
+    
         CODE: unit, HEADER: UNIT
             displays unit which a process belongs to, if systemd support has been included.
-			进程属于哪个 unit。
+            进程属于哪个 unit。
 
         CODE: uunit, HEADER: UUNIT
             displays user unit which a process belongs to, if systemd support has been included.
-			进程属于哪个 user unit。
-			
+            进程属于哪个 user unit。
+            
         CODE: machine, HEADER: MACHINE
             displays the machine name for processes assigned to VM or container, if systemd support has been included.
             进程所在的设备类型，如 VM 或容器。
@@ -1204,7 +1204,7 @@ STANDARD FORMAT SPECIFIERS 标准格式指示符
             security label, most commonly used for SELinux context data. This is for the Mandatory Access Control ("MAC") found on high-security systems.
             进程的安全标签。
             通常被 selinux 用作安全性文本。
-			
+            
         CODE: maj_flt, HEADER: MAJFLT
             The number of major page faults that have occurred with this process.
             （不懂）
@@ -1212,8 +1212,8 @@ STANDARD FORMAT SPECIFIERS 标准格式指示符
         CODE: min_flt, HEADER: MINFLT
             The number of minor page faults that have occurred with this process.
             （不懂）
-		
-		CODE: wchan, HEADER: WCHAN
+        
+        CODE: wchan, HEADER: WCHAN
         CODE: nwchan, HEADER: WCHAN
             wchan: name of the kernel function in which the process is sleeping, a "-" if the process is running, or a "*" if the process is multi-threaded and ps is not displaying threads.
             whcan: address of the kernel function where the process is sleeping (use wchan if you want the kernel function name). Running tasks will display a dash ('-') in this column.
@@ -1222,7 +1222,7 @@ STANDARD FORMAT SPECIFIERS 标准格式指示符
             当进程正在休眠时，wchan 为打印所处的内核函数的 name，nwchan 为打印所处的内核函数的 address。
             对于 running 的进程，输出为 '-'。
             如果进程为多线程，并且 ps 没有设置显示线程，则 wchan 输出为 '*'。
-			
+            
         CODE: seat, HEADER: SEAT
             displays the identifier associated with all hardware devices assigned to a specific workplace, if systemd support has been included.
             （不懂）
@@ -1230,72 +1230,72 @@ STANDARD FORMAT SPECIFIERS 标准格式指示符
         CODE: slice, HEADER: SLICE
             displays the slice unit which a process belongs to, if systemd support has been included.
             （不懂）
-			
+            
 ENVIRONMENT VARIABLES
         The following environment variables could affect ps.
         
-		In general, it is a bad idea to set these variables. The one exception is CMD_ENV or PS_PERSONALITY, which could be set to Linux for normal systems. Without that setting, ps follows the useless and bad parts of the Unix98 standard.
-		
-		以下为 ps 的一些环境变量
-		
-		大多数情况下，不要修改这些环境变量。
-		CMD_ENV 和 PS_PERSONALITY 有可能需要改为适合 linux，否则 ps 就会遵循 Unix98 标准，会很垃圾。
-		
+        In general, it is a bad idea to set these variables. The one exception is CMD_ENV or PS_PERSONALITY, which could be set to Linux for normal systems. Without that setting, ps follows the useless and bad parts of the Unix98 standard.
+        
+        以下为 ps 的一些环境变量
+        
+        大多数情况下，不要修改这些环境变量。
+        CMD_ENV 和 PS_PERSONALITY 有可能需要改为适合 linux，否则 ps 就会遵循 Unix98 标准，会很垃圾。
+        
 
         COLUMNS
             Override default display width.
-			设置 ps 的屏幕宽度
+            设置 ps 的屏幕宽度
 
         LINES
             Override default display height.
-			设置 ps 的屏幕高度
+            设置 ps 的屏幕高度
 
         PS_PERSONALITY
             Set to one of posix, old, linux, bsd, sun, digital... (see section PERSONALITY below).
-			设置 ps 的风格，如 linux、posix 等
+            设置 ps 的风格，如 linux、posix 等
 
         CMD_ENV
             Set to one of posix, old, linux, bsd, sun, digital... (see section PERSONALITY below).
-			设置 ps 的环境变量风格，如 linux 等
+            设置 ps 的环境变量风格，如 linux 等
 
         I_WANT_A_BROKEN_PS
             Force obsolete command line interpretation.
-			要求 ps 识别已废弃的命令
+            要求 ps 识别已废弃的命令
 
         LC_TIME
             Date format.
-			设置 ps 的时间格式
+            设置 ps 的时间格式
 
         PS_COLORS
             Not currently supported.
-			（目前不支持）
+            （目前不支持）
 
         PS_FORMAT
             Default output format override. You may set this to a format string of the type used for the -o option. The DefSysV and DefBSD values are particularly useful.
-			设置 ps 的默认输出格式。
-			可以设定为一个 '-o' 选项的 format 列表。
-			DefSysV 和 DefBSD 是两个非常有用的值。
-			
+            设置 ps 的默认输出格式。
+            可以设定为一个 '-o' 选项的 format 列表。
+            DefSysV 和 DefBSD 是两个非常有用的值。
+            
         PS_SYSMAP
         PS_SYSTEM_MAP
             Default namelist (System.map) location.
-			（不懂）
+            （不懂）
 
         POSIXLY_CORRECT
             Don't find excuses to ignore bad "features".
-			（不懂）
+            （不懂）
 
         POSIX2
             When set to "on", acts as POSIXLY_CORRECT.
-			（不懂）
+            （不懂）
 
         UNIX95
             Don't find excuses to ignore bad "features".
-			（不懂）
+            （不懂）
 
         _XPG
             Cancel CMD_ENV=irix non-standard behavior.
-			（不懂）
+            （不懂）
 
 
 PERSONALITY 各种 ps 风格

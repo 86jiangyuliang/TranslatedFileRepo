@@ -17,6 +17,7 @@ PROCESS FLAGS （进程的旗标）
 PROCESS STATE CODES （进程状态代码）
 OBSOLETE SORT KEYS （不翻译）
 AIX FORMAT DESCRIPTORS（不翻译）
+STANDARD FORMAT SPECIFIERS （标准格式指示符）
     （进程基本信息）
     （进程的 command）
     （进程 uid 和 gid）
@@ -33,7 +34,6 @@ AIX FORMAT DESCRIPTORS（不翻译）
     （进程 signal）
     （进程 namespace）
     （其他）
-STANDARD FORMAT SPECIFIERS （标准格式指示符）
 ENVIRONMENT VARIABLES （各种环境变量）
 PERSONALITY （各种 ps 风格）
 OTHERS
@@ -811,6 +811,14 @@ STANDARD FORMAT SPECIFIERS 标准格式指示符
             如果 name 无法获取，或 name 超宽，则依然显示 ID。
             如果使用了 'n' 选项，则依然显示 ID。
         
+        CODE: ruid, HEADER: RUID
+            real user ID.
+            进程的 RUID。
+
+        CODE: ruser, HEADER: RUSER
+            real user ID. This will be the textual user ID, if it can be obtained and the field width permits, or a decimal representation otherwise.
+            进程的 RUID name。
+			
         CODE: egid, HEADER: EGID
         CODE: gid, HEADER: EGID
             effective group ID number of the process as a decimal integer. (alias gid).
@@ -821,20 +829,16 @@ STANDARD FORMAT SPECIFIERS 标准格式指示符
             effective group ID of the process. This will be the textual group ID, if it can be obtained and the field width permits, or a decimal representation otherwise. (alias group).
             进程的有效组 name。
             如果无法获取或者 name 超过宽度，则还是显示 ID。
-            
-        CODE: ruid, HEADER: RUID
-            real user ID.
-            进程的 RUID。
-
-        CODE: ruser, HEADERl RUSER
-            real user ID. This will be the textual user ID, if it can be obtained and the field width permits, or a decimal representation otherwise.
-            进程的 RUID name。
         
         CODE: rgid, HEADER: RGID
             real group ID.
             （不懂）
             进程的 RGID。
 
+        CODE: rgroup, HEADER: RGROUP
+            real group name. This will be the textual group ID, if it can be obtained and the field width permits, or a decimal representation otherwise.
+            进程的 RGID name。
+			
         CODE: fuid, HEADER: FUID
             filesystem access user ID. (alias fsuid).
             （不懂）
@@ -845,10 +849,6 @@ STANDARD FORMAT SPECIFIERS 标准格式指示符
             （不懂）
             进程的 FUID name。
             如果 name 无法获取，或者 name 超宽，则依然显示 ID。
-        
-        CODE: rgroup, HEADER: RGROUP
-            real group name. This will be the textual group ID, if it can be obtained and the field width permits, or a decimal representation otherwise.
-            进程的 RGID name。
             
         CODE: fgid, HEADER: FGID
         CODE: fsgid, HEADER: FGID

@@ -1,0 +1,793 @@
+bc, An arbitrary precision calculator language
+********************
+File: bc.info, Node: Top, Next: Introduction, Prev: (dir), Up: (dir)
+
+* Menu:
+
+* 1 Introduction::              				<== 介绍
+*   1.1 Description::               				<-- 简介
+*   1.2 Command Line Options::     					<-- 命令行选项
+* 2 Basic Elements::							<== 基础元素
+*   2.1 Numbers::									<-- 数字
+*   2.2 Variables::									<-- 变量
+*   2.3 Comments::									<-- 注释
+* 3 Expressions::								<== 表达式
+*   3.1 About Expressions and Special Variables::	<-- 表达式与特殊变量
+*   3.2 Basic Expressions::							<-- 基础表达式
+*   3.3 Relational Expressions::					<-- 关系表达式
+*   3.4 Boolean Expressions::						<-- 布尔表达式
+*   3.5 Precedence::								<-- 优先级
+*   3.6 Special Expressions::						<-- 特殊表达式
+* 4 Statements::								<== 语句
+*   4.1 Pseudo Statements::							<-- 伪语句
+* 5 Functions::									<== 函数
+*   5.1 Math Library Functions::					<-- 数学函数库
+* 6 Examples::									<== 范例
+* 7 Readline and Libedit Options::				<== 交互式（不翻译）
+* 8 Comparison with Other Implementations::		<== 版本区别（不翻译）
+* 9 Limits::									<== 限制（不翻译）
+* 10 Environment Variables::					<== 环境变量（不翻译）
+
+1 Introduction 介绍
+**************
+File: bc.info, Node: Introduction, Next: Basic Elements, Prev: Top, Up: Top
+
+* Menu:
+
+* 1.1 Description::
+* 1.2 Command Line Options::
+
+
+1.1 Description 简介
+===============
+File: bc.info, Node: Description, Next: Command Line Options, Prev: Introduction, Up: Introduction
+
+    'bc' [ -hlwsqv ] [LongOptions] [ FILE ... ]
+
+    'bc' is a language that supports arbitrary precision numbers with interactive execution of statements. There are some similarities in the syntax to the C programming language. A standard math library is available by command line option. If requested, the math library is defined before processing any files. 'bc' starts by processing code from all the files listed on the command line in the order listed. After all files have been processed, 'bc' reads from the standard input. All code is executed as it is read. (If a file contains a command to halt the processor, 'bc' will never read from the standard input.)
+
+    bc，basic calculator，是一个面向数学计算的编程语言。
+    bc 支持任意精度的数字（和 python 一样），支持交互式的执行语句（和 python 一样）。
+    bc 的语法与 C 有些类似。
+    bc 自带一个数学函数库，想要使用的话，需要在调用 bc 时在命令行上添加 '-l' 选项。bc 会将数学库中的函数进行定义，然后再开始脚本的处理。
+    bc 对于命令行上的文件的处理方式为，按照顺序依次处理命令行上指定的文件，然后再从 STDIN 中读取输入。
+    所有的语句都是读取即处理。
+	同样，也就是说，如果不想让 bc 卡在读取 STDIN 的状态，只要将最后一个脚本文件的最后一个语句写为 'quit' 即可。
+	（也可以通过 'eof' 来退出 bc，如 echo 'XXXX' | bc，如 bc << EOF ）
+
+    This version of 'bc' contains several extensions beyond traditional 'bc' implementations and the POSIX draft standard. Command line options can cause these extensions to print a warning or to be rejected. This document describes the language accepted by this processor. Extensions will be identified as such.
+    （不翻译）
+
+    The author would like to thank Steve Sommars (<Steve.Sommars@att.com>) for his extensive help in testing the implementation. Many great suggestions were given. This is a much better product due to his involvement.
+    （不翻译）
+
+    Email bug reports to <bug-bc@gnu.org>. Be sure to include the word "bc" somewhere in the "Subject:" field.
+    （不翻译）
+
+1.2 Command Line Options 命令行选项
+========================
+File: bc.info, Node: Command Line Options, Next: Numbers, Prev: Description, Up: Introduction
+
+    'bc' takes the following options from the command line:
+    以下为 bc 接受的命令行参数
+
+        '-h, --help'
+            Print the usage and exit.
+            打印用法
+
+        '-l, --mathlib'
+            Define the standard math library.
+            导入数学函数库
+
+        '-w, --warn'
+            Give warnings for extensions to POSIX 'bc'.
+            如果使用了相对于 POSIX bc 的扩展，打印一个警告
+
+        '-s, --standard'
+            Process exactly the POSIX 'bc' language.
+            以完全遵守 POSIX bc 的方式运行，即将对于扩展的使用视为错误
+
+        '-q, --quiet'
+            Do not print the normal GNU 'bc' welcome.
+            安静模式，不打印 GNU bc 的欢迎信息
+
+        '-v, --version'
+            Print the version number and copyright and quit.
+            打印版本信息
+
+2 Basic Elements
+****************
+File: bc.info, Node: Basic Elements, Next: Expressions, Prev: Introduction, Up: Top
+
+* Menu:
+
+* 2.1 Numbers::
+* 2.2 Variables::
+* 2.3 Comments::
+
+2.1 Numbers
+===========
+File: bc.info, Node: Numbers, Next: Variables, Prev: Command Line Options, Up: Basic Elements
+
+The most basic element in 'bc' is the number. Numbers are arbitrary precision numbers. This precision is both in the integer part and the fractional part. All numbers are represented internally in decimal and all computation is done in decimal. (This version truncates results from divide and multiply operations.) There are two attributes of numbers, the length and the scale. The length is the total number of significant decimal digits in a number and the scale is the total number of decimal digits after the decimal point. For example, .000001 has a length of 6 and scale of 6, while 1935.000 has a length of 7 and a scale of 3.
+bc 中最基础的元素就是数字。
+bc 默认支持无限精度的数字。不过会对乘法和除法的结果进行小数点后 20 位的截断。
+bc 内部使用十进制表示所有的数，所有的计算也是按照十进制进行。
+数字有两个熟悉，长度 length 和范围 scale。
+长度 length 指的是数字的有效数字的位数。
+范围 scale 指的是小数点之后的位数。
+
+2.2 Variables
+=============
+File: bc.info, Node: Variables, Next: Comments, Prev: Numbers, Up: Basic Elements
+
+Numbers are stored in two types of variables, simple variables and arrays. Both simple variables and array variables are named. Names begin with a letter followed by any number of letters, digits and underscores. All letters must be lower case. (Full alphanumeric names are an extension. In POSIX 'bc' all names are a single lower case letter.) The type of variable is clear by the context because all array variable names will be followed by brackets ( [ ] ).
+bc 支持普通变量，也支持数组。
+起名方式相同，都是以字母开头，可以使用字母、数组、下划线。
+注意，只能使用小写字母。
+要使用数组中的元素，格式为 ArrayName[N]。
+
+There are four special variables, SCALE, IBASE, OBASE, and LAST. SCALE defines how some operations use digits after the decimal point. The default value of SCALE is 0. IBASE and OBASE define the conversion base for input and output numbers. The default for both input and output is base 10. LAST (an extension) is a variable that has the value of the last printed number. These will be discussed in further detail where appropriate. All of these variables may have values assigned to them as well as used in expressions.
+bc 内部有四个特殊变量，SCALE、IBASE、OBASE、LAST。
+SCALE 用来指定 bc 运算时的 scale 的取值。默认为 0。
+IBASE 和 OBASE 用来指定输入和输出时采用的进制方式。默认为 10 表示十进制。
+LASE 用来储存最后一次打印的数字。
+这四个特殊变量可以在 bc 运行时进行修改。
+
+2.3 Comments 注释
+============
+File: bc.info, Node: Comments, Prev: Variables, Up: Basic Elements
+
+Comments in 'bc' start with the characters '/*' and end with the characters '*/'. Comments may start anywhere and appear as a single space in the input. (This causes comments to delimit other input items. For example, a comment can not be found in the middle of a variable name.) Comments include any newlines (end of line) between the start and the end of the comment.
+
+To support the use of scripts for 'bc', a single line comment has been added as an extension. A single line comment starts at a '#' character and continues to the next end of the line. The end of line character is not part of the comment and is processed normally.
+bc 支持 /* */ 方式的注释。
+bc 也支持 '#' 的单行注释。
+
+3 Expressions 表达式
+*************
+File: bc.info, Node: Expressions, Next: Statements, Prev: Basic Elements, Up: Top
+
+* Menu:
+
+* 3.1 About Expressions and Special Variables:: 表达式与特殊变量
+* 3.2 Basic Expressions:: 基础表达式
+* 3.3 Relational Expressions:: 关系表达式
+* 3.4 Boolean Expressions:: 布尔表达式
+* 3.5 Precedence:: 优先级
+* 3.6 Special Expressions:: 特殊表达式
+
+File: bc.info, Node: About Expressions and Special Variables, Next: Basic Expressions, Prev: Expressions, Up: Expressions
+
+3.1 About Expressions and Special Variables 表达式与特殊变量
+===========================================
+
+The numbers are manipulated by expressions and statements. Since the language was designed to be interactive, statements and expressions are executed as soon as possible. There is no main program. Instead, code is executed as it is encountered. (Functions, discussed in detail later, are defined when encountered.)
+bc 中通过表达式和语句来操控数字。
+bc 不使用 'main' 式的编程方式，而是在遇到表达时和语句时立刻处理。
+
+A simple expression is just a constant. 'bc' converts constants into internal decimal numbers using the current input base, specified by the variable IBASE. (There is an exception in functions.) The legal values of IBASE are 2 through 16. Assigning a value outside this range to IBASE will result in a value of 2 or 16. Input numbers may contain the characters 0-9 and A-F. (Note: They must be capitals. Lower case letters are variable names.) Single digit numbers always have the value of the digit regardless of the value of IBASE. (i.e. A = 10.) For multi-digit numbers, 'bc' changes all input digits greater or equal to IBASE to the value of IBASE-1. This makes the number 'FFF' always be the largest 3 digit number of the input base.
+最简单的表达式就是一个常数。
+基于当前的 IBASE 的设置，bc 将常数转换为内部的十进制数。
+IBASE 支持从二进制到十六进制。
+bc 支持使用 0-9 和 A-F 来表示数字，但字母只允许使用大写，因为小写字母用在了变量名那里了。
+（后半部分不翻译，讲的是即使超出了 IBASE 的指定，有时 bc 依然能识别。不要这样搞，因为情况比较复杂。）
+
+Full expressions are similar to many other high level languages. Since there is only one kind of number, there are no rules for mixing types. Instead, there are rules on the scale of expressions. Every expression has a scale. This is derived from the scale of original numbers, the operation performed and in many cases, the value of the variable SCALE. Legal values of the variable SCALE are 0 to the maximum number representable by a C integer.
+由于 bc 只有一种数据类型，就是数字，因此在 bc 中不需要纠结类型的问题。
+取而代之的，bc 中需要纠结 scale 的问题。
+每一个表达式都有自己的 scale。
+默认都使用 scale 变量的设置，除非表达式中的原始数值就已经超出了 scale 的设定，此时按照原始数值的 scale 来进行处理。
+scale 变量的取值范围为 0 到无穷大。
+
+3.2 Basic Expressions 基础表达式
+=====================
+File: bc.info, Node: Basic Expressions, Next: Relational Expressions, Prev: About Expressions and Special Variables, Up: Expressions
+
+In the following descriptions of legal expressions, "expr" refers to a complete expression and "VAR" refers to a simple or an array variable.
+A simple variable is just a NAME and an array variable is specified as NAME[EXPR].
+在以下表述中，'expr' 代表一个完整的表达式，'var' 表示一个变量或一个数组。
+
+Unless specifically mentioned the scale of the result is the maximum scale of the expressions involved.
+通常，表达式的 scale 就是表达式所涉及的最大的 scale。
+
+    '- expr'
+        The result is the negation of the expression.
+		结果为表达式的负值
+
+    '++ VAR'
+        The variable is incremented by one and the new value is the result of the expression.
+		先自增 1，结果为表达式的结果
+
+    '-- VAR'
+        The variable is decremented by one and the new value is the result of the expression.
+		先自减 1，结果为表达式的结果
+
+    'VAR ++'
+        The result of the expression is the value of the variable and then the variable is incremented by one.
+		表达式的结果为变量的值，变量再自增 1
+
+    'VAR --'
+        The result of the expression is the value of the variable and then the variable is decremented by one.
+		表达式的结果为变量的值，变量再自减 1
+
+    'expr + expr'
+        The result of the expression is the sum of the two expressions.
+		求和
+
+    'expr - expr'
+        The result of the expression is the difference of the two expressions.
+		求差
+
+    'expr * expr'
+        The result of the expression is the product of the two expressions. If a and b are the scales of the two expressions, then the scale of the result is: min(a+b,max(SCALE,a,b))
+		求积
+		（关于 scale 部分不翻译了，懂得都懂）
+		
+    'expr / expr'
+        The result of the expression is the quotient of the two expressions. The scale of the result is the value of the variable 'scale'
+		求商。
+		scale 使用 scale 变量的设置
+
+    'expr % expr'
+        The result of the expression is the "remainder" and it is computed in the following way. To compute a%b, first a/b is computed to SCALE digits. That result is used to compute a-(a/b)*b to the scale of the maximum of SCALE+scale(b) and scale(a). If SCALE is set to zero and both expressions are integers this expression is the integer remainder function.
+		求余。
+
+    'expr ^ expr'
+        The result of the expression is the value of the first raised to the second. The second expression must be an integer. (If the second expression is not an integer, a warning is generated and the expression is truncated to get an integer value.) The scale of the result is SCALE if the exponent is negative. If the exponent is positive the scale of the result is the minimum of the scale of the first expression times the value of the exponent and the maximum of SCALE and the scale of the first expression. (e.g. scale(a^b) = min(scale(a)*b, max(SCALE, scale(a))).) It should be noted that expr^0 will always return the value of 1.
+		求幂。
+		要求指数必须是整数，可以是负数。
+		（后面关于 scale 的部分，不翻译）
+
+    '( expr )'
+        This alters the standard precedence to force the evaluation of the expression.
+		括号
+
+    'VAR = expr'
+        The variable is assigned the value of the expression.
+		变量赋值
+
+    'VAR <op>= expr'
+        This is equivalent to "VAR = VAR <op> expr" with the exception that the "VAR" part is evaluated only once. This can make a difference if "VAR" is an array.
+		变量的自操作
+
+3.3 Relational Expressions 关系表达式
+==========================
+File: bc.info, Node: Relational Expressions, Next: Boolean Expressions, Prev: Basic Expressions, Up: Expressions
+
+Relational expressions are a special kind of expression that always evaluate to 0 or 1, 0 if the relation is false and 1 if the relation is true. These may appear in any legal expression. (POSIX 'bc' requires that relational expressions are used only in 'if', 'while', and 'for' statements and that only one relational test may be done in them.) The relational operators are:
+bc 的关系表达式，可以得出结果。
+true 返回 1，false 返回 0
+此原则对于 bc 中所有的逻辑表达式都成立。
+（括号中关于 POSIX bc 部分的内容，不翻译，简单说，就是适用性没有普通的 bc 强）
+以下为一些关系运算符
+
+    'expr1 < expr2'
+        The result is 1 if expr1 is strictly less than expr2.
+		小于
+
+    'expr1 <= expr2'
+        The result is 1 if expr1 is less than or equal to expr2.
+		小于等于
+
+    'expr1 > expr2'
+        The result is 1 if expr1 is strictly greater than expr2.
+		大于
+
+    'expr1 >= expr2'
+        The result is 1 if expr1 is greater than or equal to expr2.
+		大于等于
+
+    'expr1 == expr2'
+        The result is 1 if expr1 is equal to expr2.
+		等于
+
+    'expr1 != expr2'
+        The result is 1 if expr1 is not equal to expr2.
+		不等于
+
+3.4 Boolean Expressions
+=======================
+File: bc.info, Node: Boolean Expressions, Next: Precedence, Prev: Relational Expressions, Up: Expressions
+
+Boolean operations are also legal. (POSIX 'bc' does NOT have boolean operations). The result of all boolean operations are 0 and 1 (for false and true) as in relational expressions. The boolean operators are:
+布尔表达式也是逻辑表达式，所以，如同关系表达式一样，也可以返回 1 或 0。
+布尔表达式，视 0 为 false，视 non-0 为 true。
+
+    '!expr'
+        The result is 1 if expr is 0.
+		非
+
+    'expr && expr'
+        The result is 1 if both expressions are non-zero.
+		与
+
+    'expr || expr'
+        The result is 1 if either expression is non-zero.
+		或
+
+3.5 Precedence
+==============
+File: bc.info, Node: Precedence, Next: Special Expressions, Prev: Boolean Expressions, Up: Expressions
+
+The expression precedence is as follows: (lowest to highest)
+
+    || operator, left associative
+    && operator, left associative
+    ! operator, nonassociative
+    Relational operators, left associative
+    Assignment operator, right associative
+    + and - operators, left associative
+    *, / and % operators, left associative
+    ^ operator, right associative
+    unary - operator, nonassociative
+    ++ and -- operators, nonassociative
+
+bc 中运算符的优先级，由高到低：
+	++ --，无结合
+	负号，无结合
+	^ ，右结合
+	*/%，左结合
+	+-，左结合
+	赋值运算符，右结合
+	关系运算符，左结合
+	! ，无结合
+	&&，左结合
+	||，左结合
+	
+This precedence was chosen so that POSIX compliant 'bc' programs will run correctly. This will cause the use of the relational and logical operators to have some unusual behavior when used with assignment expressions. Consider the expression: a = 3 < 5, Most C programmers would assume this would assign the result of "3 < 5" (the value 1) to the variable "a". What this does in 'bc' is assign the value 3 to the variable "a" and then compare 3 to 5. It is best to use parentheses when using relational and logical operators with the assignment operators.
+（不翻译）
+（一个是解释了为什么采用这种顺序的优先级）
+（一个是解释了这种与 C 不完全相同的优先级，可能存在的问题。简单来说，不要使用诸如 'a=3<5' 这种奇怪的用法，或者至少加上括号）
+
+3.6 Special Expressions
+=======================
+File: bc.info, Node: Special Expressions, Prev: Precedence, Up: Expressions
+
+There are a few more special expressions that are provided in 'bc'. These have to do with user-defined functions and standard functions. They all appear as "NAME'('PARAMETERS')'". *Note Functions::, for user-defined functions. The standard functions are:
+以下为 bc 支持的一些额外的表达式。
+（其实可以视为 bc 的内置函数）
+
+    'length ( expression )'
+        The value of the length function is the number of significant digits in the expression.
+		返回参数的有效数字的位数
+
+    'read ( )'
+        The 'read' function (an extension) will read a number from the standard input, regardless of where the function occurs. Beware, this can cause problems with the mixing of data and program in the standard input. The best use for this function is in a previously written program that needs input from the user, but never allows program code to be input from the user. The value of the 'read' function is the number read from the standard input using the current value of the variable IBASE for the conversion base.
+		（不翻译）
+		（用来从 STDIN 中读取用户的输入，作用是用在不允许从 STDIN 中获取用户输入的程序中读取用户的输入）
+		（脱裤子放屁）
+
+    'scale ( expression )'
+        The value of the 'scale' function is the number of digits after the decimal point in the expression.
+		返回参数的小数的位数
+
+    'sqrt ( expression )'
+        The value of the 'sqrt' function is the square root of the expression. If the expression is negative, a run time error is generated.
+		返回参数的平方根，参数不可以是负数
+
+4 Statements
+************
+File: bc.info, Node: Statements, Next: Functions, Prev: Expressions, Up: Top
+
+* Menu:
+
+* 4.1 Pseudo Statements::
+
+Statements (as in most algebraic languages) provide the sequencing of expression evaluation. In 'bc' statements are executed "as soon as possible." Execution happens when a newline in encountered and there is one or more complete statements. Due to this immediate execution, newlines are very important in 'bc'. In fact, both a semicolon and a newline are used as statement separators. An improperly placed newline will cause a syntax error. Because newlines are statement separators, it is possible to hide a newline by using the backslash character. The sequence "\<nl>", where <nl> is the newline appears to 'bc' as whitespace instead of a newline. A statement list is a series of statements separated by semicolons and newlines. The following is a list of 'bc' statements and what they do: (Things enclosed in brackets ( [ ] ) are optional parts of the statement.)
+语句 statement，是用来设置表达式的执行顺序的。（不用去管什么是代数语言）
+bc 对于语句的处理方式为，发现即执行。
+bc 将 newline 和 ';' 视为语句分隔符。
+可以使用 '\' 将 newline 跳脱成一个 writesapce。
+
+EXPRESSION
+    This statement does one of two things. If the expression starts with "<variable> <assignment> ...", it is considered to be an assignment statement. If the expression is not an assignment statement, the expression is evaluated and printed to the output. After the number is printed, a newline is printed. For example,
+    "a=1" is an assignment statement and "(a=1)" is an expression that has an embedded assignment. 
+	bc 中，表达式有两种工作方式。
+	一个是赋值，此时仅进行赋值，不会进行打印。
+	一个是计算，此时 bc 会对表达式进行计算，将结果打印出来，并追加一个 newline。
+	需要注意的是，'a=2' 是赋值，而 '(a=2)' 被 bc 识别为计算，即使 a 依然被赋值了。
+	
+	All numbers that are printed are printed in the base specified by the variable OBASE. The legal values for OBASE are 2 through BC_BASE_MAX (*note Environment Variables::). For bases 2 through 16, the usual method of writing numbers is used. For bases greater than 16, 'bc' uses a multi-character digit method of printing the numbers where each higher base digit is printed as a base 10 number. The multi-character digits are separated by spaces. Each digit contains the number of characters required to represent the base ten value of "OBASE -1". 
+	在打印时，OBASE 的影响是明显的。
+	OBASE 的取值范围为 2 到 BC_BASE_MAX 的规定，目前 BC_BASE_MAX 的规定为 999。
+	如果 OBASE 的取值小于 16，则对于大于 10 的数字，bc 采用 ABCDEF 来表示。
+	如果 OBASE 的取值大于 16，则 bc 会采用 multi-character 的方式来表示。
+	所谓 multi-character，即使用两个或多个十进制的 0-9，来表示结果中的一位数。结果的每一位数，都采用 space 进行间隔。
+	
+	Since numbers are of arbitrary precision, some numbers may not be printable on a single output line. These long numbers will be split across lines using the "\" as the last character on a line. The maximum number of characters printed per line is 70. 
+	bc 在打印时，每行最多打印 70 个字符。
+	由于 bc 支持无限精度，因此有可能一个数一行打印不完，此时 bc 采用 '\' 来进行续行。
+	
+	Due to the interactive nature of 'bc', printing a number causes the side effect of assigning the printed value to the special variable LAST. This allows the user to recover the last value printed without having to retype the expression that printed the number. Assigning to LAST is legal and will overwrite the last printed value with the assigned value. The newly assigned value will remain until the next number is printed or another value is assigned to LAST. (Some installations may allow the use of a single period (.) which is not part of a number as a short hand notation for for LAST.)
+	bc 在打印时，会自动将数字储存在 LAST 变量。
+	LAST 变量的好处是，当需要使用上一次打印的数字时用得到。
+	bc 支持对 LAST 变量进行赋值，但如果 bc 再次发生了打印，则 LAST 变量又会被覆盖。
+	
+STRING
+    The string is printed to the output. Strings start with a double quote character and contain all characters until the next double quote character. All characters are taken literally, including any newline. No newline character is printed after the string.
+	bc 支持字符串。
+	字符串的表示方式为，位于两个双引号 " " 之间，无论是什么符号。所以，即使 " " 中包含 newline，bc 也会认为 newline 是字符串的一部分。
+	（这点是与 shell 语言不同的地方）
+	字符串会被正常的打印出来。
+	打印字符串时，不会在末尾追加 newline。
+
+'PRINT' LIST
+    The 'print' statement (an extension) provides another method of output. The LIST is a list of strings and expressions separated by commas. Each string or expression is printed in the order of the list. No terminating newline is printed. Expressions are evaluated and their value is printed and assigned to the variable 'last'. 
+	print 语句是 bc 提供的另一种打印到 output 的方法。
+	print 会将 LIST 中的内容打印出来。
+	pirnt 打印的结果，不会在末尾追加 newline。
+	LIST 中的项，可以是表达式，也可以是字符串。
+	对于表达式，bc 会先进行计算，然后打印计算的结果，并储存在 LAST 变量中。
+	
+	Strings in the print statement are printed to the output and may contain special characters. Special characters start with the backslash character (\e). The special characters recognized by 'bc' are "a" (alert or bell), "b" (backspace), "f" (form feed), "n" (newline), "r" (carriage return), "q" (double quote), "t" (tab), and "\e" (backslash). Any other character following the backslash will be ignored.
+	字符串只有放在 print 语句中时，才可以使用跳脱快捷键。
+	支持的跳脱快捷键有：\a、\b、\e、\f、\n、\r、\q、\t。
+	
+
+{ STATEMENT_LIST }
+    This is the compound statement. It allows multiple statements to be grouped together for execution.
+	bc 支持语句组合，使用大括号 { }。
+	对于组合的语句，bc 时一起执行的。
+
+'IF' ( EXPRESSION ) STATEMENT1 ['ELSE' STATEMENT2]
+    The if statement evaluates the expression and executes statement1 or statement2 depending on the value of the expression. If the expression is non-zero, statement1 is executed. If statement2 is present and the value of the expression is 0, then statement2 is executed. (The 'else' clause is an extension.)
+	bc 支持 if 语句（但似乎不支持 elseif）。
+	对于条件，bc 视 non-0 为 true，视 0 为 false。
+
+'WHILE' ( EXPRESSION ) STATEMENT
+    The while statement will execute the statement while the expression is non-zero. It evaluates the expression before each execution of the statement. Termination of the loop is caused by a zero expression value or the execution of a 'break' statement.
+	bc 支持 while 语句。
+
+'FOR' ( [EXPRESSION1] ; [EXPRESSION2] ; [EXPRESSION3] ) STATEMENT
+    The 'for' statement controls repeated execution of the statement. EXPRESSION1 is evaluated before the loop. EXPRESSION2 is evaluated before each execution of the statement. If it is non-zero, the statement is evaluated. If it is zero, the loop is terminated. After each execution of the statement, EXPRESSION3 is evaluated before the reevaluation of expression2. If EXPRESSION1 or EXPRESSION3 are missing, nothing is evaluated at the point they would be evaluated. If EXPRESSION2 is missing, it is the same as substituting the value 1 for EXPRESSION2. (The optional expressions are an extension. POSIX 'bc' requires all three expressions.) The following is equivalent code for the 'for' statement:
+
+        expression1;
+        while (expression2) {
+            statement;
+            expression3;
+        }
+	bc 支持 for 循环。
+	bc 的 for 循环与其他的 for 循环有一些不同。
+	expression_1 是初始表达式，在执行 for 循环之前进行运算。
+	expression_2 是条件表达式，在 for 循环的每一次迭代之前进行运算，non-0 则进行下一轮迭代，0 则退出循环。
+	expression_3 是末尾表达式，在 for 循环的每一次迭代之中，作为最后一个语句使用。
+	虽然不推荐，但 bc 是允许这三个表达式缺失的。（POSIX bc 则要求三个表达式都必须存在）
+	expression_1 和 expression_3 缺失了，只是相当于省略了相应位置的运算。
+	expression_2 如果缺失，相当于 1，即死循环。（此时需要 break 语句）
+	（bc 的 for 循序等价于此处所写的 while 循环）
+
+'BREAK'
+    This statement causes a forced exit of the most recent enclosing 'while' statement or 'for' statement.
+	bc 支持 break 语句，可以用来退出 while 或者 for 循环。
+
+'CONTINUE'
+    The 'continue' statement (an extension) causes the most recent enclosing 'for' statement to start the next iteration.
+	bc 支持 continue 语句。
+
+'HALT'
+    The 'halt' statement (an extension) is an executed statement that causes the 'bc' processor to quit only when it is executed. For example, "if (0 == 1) halt" will not cause 'bc' to terminate because the 'halt' is not executed.
+	bc 提供的一个软退出功能。
+	只有 halt 部分被执行了，才会退出 bc 的处理，因此 halt 配合 if 使用效果明显。
+
+'RETURN'
+    Return the value 0 from a function. (*Note Functions::.)
+	对于 bc 的函数，返回 0
+
+'RETURN' ( EXPRESSION )
+    Return the value of the expression from a function. (*Note Functions::.) As an extension, the parenthesis are not required.
+	对于 bc 的 函数，返回表达式的计算结果
+
+4.1 Pseudo Statements 伪语句
+=====================
+File: bc.info, Node: Pseudo Statements, Prev: Statements, Up: Statements
+
+These statements are not statements in the traditional sense. They are not executed statements. Their function is performed at "compile" time.
+以下为 bc 提供的一些非传统的用法。
+
+'limits'
+    Print the local limits enforced by the local version of 'bc'. This is an extension.
+	打印当前 bc 的一些限制。
+
+'quit'
+    When the 'quit' statement is read, the 'bc' processor is terminated, regardless of where the 'quit' statement is found. For example, "if (0 == 1) quit" will cause 'bc' to terminate.
+	强制退出。
+
+'warranty'
+    Print a longer warranty notice. This is an extension.
+	输出一个警告信息
+
+5 Functions 函数
+***********
+File: bc.info, Node: Functions, Next: Examples, Prev: Statements, Up: Top
+
+* Menu:
+
+* 5.1 Math Library Functions:: 数学库函数
+
+Functions provide a method of defining a computation that can be executed later. Functions in 'bc' always compute a value and return it to the caller. Function definitions are "dynamic" in the sense that a function is undefined until a definition is encountered in the input. That definition is then used until another definition function for the same name is encountered. The new definition then replaces the older definition. 
+bc 也支持函数功能。
+函数进行运算，将结果返回给其调用者。
+bc 的函数定义是动态的，即只有 bc 读取到函数定义时，函数才会开始存在。
+再次对函数名进行定义，则原来的函数会被覆盖。
+
+A function is defined as follows:
+定义函数的语法。
+
+    define NAME ( PARAMETERS ) { NEWLINE
+        AUTO_LIST   STATEMENT_LIST }
+
+
+A function call is just an expression of the form "'name' '('PARAMETERS')'".
+调用函数的方式，FunctionName ( Parameters )。
+
+Parameters are numbers or arrays (an extension). In the function definition, zero or more parameters are defined by listing their names separated by commas. All parameters are call by value parameters. Arrays are specified in the parameter definition by the notation "NAME'[ ]'". In the function call, actual parameters are full expressions for number parameters. The same notation is used for passing arrays as for defining array parameters. The named array is passed by value to the function. Since function definitions are dynamic, parameter numbers and types are checked when a function is called. Any mismatch in number or types of parameters will cause a runtime error. A runtime error will also occur for the call to an undefined function.
+函数的参数可以是数字，也可以是数组。
+参数与参数之间使用 ',' 间隔。
+（其余的部分就基本都看不懂了，出现了好多 parameter）
+如果调用函数时，参数的类型错了，则会导致 runtime error。
+
+The AUTO_LIST is an optional list of variables that are for "local" use. The syntax of the auto list (if present) is "'auto' NAME, ... ;". (The semicolon is optional.) Each NAME is the name of an auto variable. Arrays may be specified by using the same notation as used in parameters. These variables have their values pushed onto a stack at the start of the function. The variables are then initialized to zero and used throughout the execution of the function. At function exit, these variables are popped so that the original value (at the time of the function call) of these variables are restored. The parameters are really auto variables that are initialized to a value provided in the function call. Auto variables are different than traditional local variables because if function A calls function B, B may access function A's auto variables by just using the same name, unless function B has called them auto variables. Due to the fact that auto variables and parameters are pushed onto a stack, 'bc' supports recursive functions.
+（不翻译，看不太懂）
+（关于所谓的 auto 变量，提供了一种 local 用法，但与传统的 local 用法又不完全相似）
+
+The function body is a list of 'bc' statements. Again, statements are separated by semicolons or newlines. Return statements cause the termination of a function and the return of a value. There are two versions of the return statement. The first form, "'return'", returns the value 0 to the calling expression. The second form, "'return' ( EXPRESSION )", computes the value of the expression and returns that value to the calling expression. There is an implied "'return' (0)" at the end of every function. This allows a function to terminate and return 0 without an explicit 'return' statement.
+语句列表，就是函数的函数体。
+return 语句会结束函数的运行。
+bc 的函数都默认隐含一个 return 语句在结尾。（因此，如果没有显式的指定 reutrn 语句，则函数必然返回 0）
+
+Functions also change the usage of the variable IBASE. All constants in the function body will be converted using the value of IBASE at the time of the function call. Changes of IBASE will be ignored during the execution of the function except for the standard function 'read', which will always use the current value of IBASE for conversion of numbers.
+（不翻译，关于函数识别数据与 IBASE 的影响）
+
+Several extensions have been added to functions. First, the format of the definition has been slightly relaxed. The standard requires the opening brace be on the same line as the 'define' keyword and all other parts must be on following lines. This version of 'bc' will allow any number of newlines before and after the opening brace of the function. For example, the following definitions are legal.
+
+    define d (n) { return (2*n); }
+    define d (n)
+        { return (2*n); }
+（不翻译，关于大括号放在哪里）
+
+Functions may be defined as 'void'. A void funtion returns no value and thus may not be used in any place that needs a value. A void function does not produce any output when called by itself on an input line. The key word 'void' is placed between the key word 'define' and the function name. For example, consider the following session.
+
+    define py (y) { print "--->", y, "<---", "\n"; }
+    define void px (x) { print "--->", x, "<---", "\n"; }
+    py(1)
+    --->1<---
+    0
+    px(1)
+    --->1<---
+
+Since 'py' is not a void function, the call of 'py(1)' prints the desired output and then prints a second line that is the value of the function. Since the value of a function that is not given an explicit return statement is zero, the zero is printed. For 'px(1)', no zero is printed because the function is a void function.
+（不翻译，关于空函数。空函数没有返回值）
+
+Also, call by variable for arrays was added. To declare a call by variable array, the declaration of the array parameter in the function definition looks like "'*'NAME'[]'". The call to the function remains the same as call by value arrays.
+（不懂）
+
+5.1 Math Library Functions 数学函数库
+==========================
+File: bc.info, Node: Math Library Functions, Prev: Functions, Up: Functions
+
+If 'bc' is invoked with the '-l' option, a math library is preloaded and the default SCALE is set to 20. The math functions will calculate their results to the scale set at the time of their call. The math library defines the following functions:
+'-l' 选项可以用来导入数学函数库。
+此时 scale 默认被设置为 20。
+
+'s (X)'
+    The sine of X, X is in radians.
+	求 X 的 sin 值，X 为弧度
+
+'c (X)'
+    The cosine of X, X is in radians.
+	求 X 的 cos 值，X 为弧度
+
+'a (X)'
+    The arctangent of X, arctangent returns radians.
+	求 X 的 arctan 值，返回弧度
+
+'l (X)'
+    The natural logarithm of X.
+	求 X 的自然对数
+
+'e (X)'
+    The exponential function of raising E to the value X.
+	求 X 的自然指数
+
+'j (N,X)'
+    The Bessel function of integer order N of X.
+	求 X 的贝塞尔函数值
+
+6 Examples 范例
+**********
+File: bc.info, Node: Examples, Next: Readline and Libedit Options, Prev: Functions, Up: Top
+
+In /bin/sh, the following will assign the value of "pi" to the shell variable PI.
+
+    pi=$(echo "scale=10; 4*a(1)" | bc -l)
+求 pi。
+
+The following is the definition of the exponential function used in the math library. This function is written in POSIX 'bc'.
+
+    scale = 20
+
+    /* Uses the fact that e^x = (e^(x/2))^2
+        When x is small enough, we use the series:
+        e^x = 1 + x + x^2/2! + x^3/3! + ...
+    */
+
+    define e(x) {
+        auto a, d, e, f, i, m, v, z
+
+        /* Check the sign of x. */
+        if (x<0) {
+        m = 1
+        x = -x
+        }
+
+        /* Precondition x. */
+        z = scale;
+        scale = 4 + z + .44*x;
+        while (x > 1) {
+        f += 1;
+        x /= 2;
+        }
+
+        /* Initialize the variables. */
+        v = 1+x
+        a = x
+        d = 1
+
+        for (i=2; 1; i++) {
+        e = (a *= x) / (d *= i)
+        if (e == 0) {
+            if (f>0) while (f--) v = v*v;
+            scale = z
+            if (m) return (1/v);
+            return (v/1);
+        }
+        v += e
+        }
+    }
+（不翻译）
+
+The following is code that uses the extended features of 'bc' to implement a simple program for calculating checkbook balances. This program is best kept in a file so that it can be used many times without having to retype it at every use.
+
+    scale=2
+    print "\nCheck book program\n!"
+    print " Remember, deposits are negative transactions.\n"
+    print " Exit by a 0 transaction.\n\n"
+
+    print "Initial balance? "; bal = read()
+    bal /= 1
+    print "\n"
+    while (1) {
+        "current balance = "; bal
+        "transaction? "; trans = read()
+        if (trans == 0) break;
+        bal -= trans
+        bal /= 1
+    }
+    quit
+（不翻译，checkbook 支票本）
+
+The following is the definition of the recursive factorial function.
+
+    define f (x) {
+        if (x <= 1) return (1);
+        return (f(x-1) * x);
+    }
+（不翻译，关于 bc 的函数的递归调用）
+
+7 Readline and Libedit Options 交互式（不翻译）
+******************************
+File: bc.info, Node: Readline and Libedit Options, Next: Comparison with Other Implementations, Prev: Examples, Up: Top
+
+GNU 'bc' can be compiled (via a configure option) to use the GNU 'readline' input editor library or the BSD 'libedit' library. This allows the user to do more editing of lines before sending them to 'bc'. It also allows for a history of previous lines typed. When this option is selected, 'bc' has one more special variable. This special variable, HISTORY is the number of lines of history retained. A value of -1 means that an unlimited number of history lines are retained. This is the default value. Setting the value of HISTORY to a positive number restricts the number of history lines to the number given. The value of 0 disables the history feature. For more information, read the user manuals for the GNU 'readline', 'history' and BSD 'libedit' libraries. One can not enable both 'readline' and 'libedit' at the same time.
+
+8 Comparison with Other Implementations 版本区别（不翻译）
+***************************************
+File: bc.info, Node: Comparison with Other Implementations, Next: Limits, Prev: Readline and Libedit Options, Up: Top
+
+This version of 'bc' was implemented from the POSIX P1003.2/D11 draft and contains several differences and extensions relative to the draft and traditional implementations. It is not implemented in the traditional way using 'dc'. This version is a single process which parses and runs a byte code translation of the program. There is an "undocumented" option (-c) that causes the program to output the byte code to the standard output instead of running it. It was mainly used for debugging the parser and preparing the math library.
+
+A major source of differences is extensions, where a feature is extended to add more functionality and additions, where new features are added. The following is the list of differences and extensions.
+
+LANG ENVIRONMENT
+    This version does not conform to the POSIX standard in the processing of the LANG environment variable and all environment variables starting with LC_.
+
+NAMES
+    Traditional and POSIX 'bc' have single letter names for functions, variables and arrays. They have been extended to be multi-character names that start with a letter and may contain letters, numbers and the underscore character.
+
+STRINGS
+    Strings are not allowed to contain NUL characters. POSIX says all characters must be included in strings.
+
+LAST
+    POSIX 'bc' does not have a \fBlast variable. Some implementations of 'bc' use the period (.) in a similar way.
+
+COMPARISONS
+    POSIX 'bc' allows comparisons only in the 'if' statement, the 'while' statement, and the second expression of the 'for' statement. Also, only one relational operation is allowed in each of those statements.
+
+IF STATEMENT, ELSE CLAUSE
+    POSIX 'bc' does not have an 'else' clause.
+
+FOR STATEMENT
+    POSIX 'bc' requires all expressions to be present in the 'for' statement.
+
+&&, ||, !
+    POSIX 'bc' does not have the logical operators.
+
+READ FUNCTION
+    POSIX 'bc' does not have a 'read' function.
+
+PRINT STATEMENT
+    POSIX 'bc' does not have a 'print' statement.
+
+CONTINUE STATEMENT
+    POSIX 'bc' does not have a continue statement.
+
+ARRAY PARAMETERS
+    POSIX 'bc' does not (currently) support array parameters in full. The POSIX grammar allows for arrays in function definitions, but does not provide a method to specify an array as an actual parameter. (This is most likely an oversight in the grammar.) Traditional implementations of 'bc' have only call by value array parameters.
+
+FUNCTION FORMAT
+    POSIX 'bc' requires the opening brace on the same line as the 'define' key word and the 'auto' statement on the next line.
+
+=+, =-, =*, =/, =%, =^
+    POSIX 'bc' does not require these "old style" assignment operators to be defined. This version may allow these "old style" assignments. Use the 'limits' statement to see if the installed version supports them. If it does support the "old style" assignment operators, the statement "a =- 1" will decrement 'a' by 1 instead of setting 'a' to the value -1.
+
+SPACES IN NUMBERS
+    Other implementations of 'bc' allow spaces in numbers. For example, "x=1 3" would assign the value 13 to the variable x. The same statement would cause a syntax error in this version of 'bc'.
+
+ERRORS AND EXECUTION
+    This implementation varies from other implementations in terms of what code will be executed when syntax and other errors are found in the program. If a syntax error is found in a function definition, error recovery tries to find the beginning of a statement and continue to parse the function. Once a syntax error is found in the function, the function will not be callable and becomes undefined. Syntax errors in the interactive execution code will invalidate the current execution block. The execution block is terminated by an end of line that appears after a complete sequence of statements. For example,
+
+        a = 1
+        b = 2
+
+    has two execution blocks and
+
+        { a = 1
+            b = 2 }
+
+    has one execution block. Any runtime error will terminate the execution of the current execution block. A runtime warning will not terminate the current execution block.
+
+INTERRUPTS
+    During an interactive session, the SIGINT signal (usually generated by the control-C character from the terminal) will cause execution of the current execution block to be interrupted. It will display a "runtime" error indicating which function was interrupted. After all runtime structures have been cleaned up, a message will be printed to notify the user that 'bc' is ready for more input. All previously defined functions remain defined and the value of all non-auto variables are the value at the point of interruption. All auto variables and function parameters are removed during the clean up process. During a non-interactive session, the SIGINT signal will terminate the entire run of 'bc'.
+
+9 Limits 限制（不翻译）
+********
+File: bc.info, Node: Limits, Next: Environment Variables, Prev: Comparison with Other Implementations, Up: Top
+
+The following are the limits currently in place for this 'bc' processor. Some of them may have been changed by an installation. Use the 'limits' statement to see the actual values.
+
+'BC_BASE_MAX'
+    The maximum output base is currently set at 999. The maximum input base is 16.
+
+'BC_DIM_MAX'
+    This is currently an arbitrary limit of 65535 as distributed. Your installation may be different.
+
+'BC_SCALE_MAX'
+    The number of digits after the decimal point is limited to INT_MAX digits. Also, the number of digits before the decimal point is limited to INT_MAX digits.
+
+'BC_STRING_MAX'
+    The limit on the number of characters in a string is INT_MAX characters.
+
+'exponent'
+    The value of the exponent in the raise operation (^) is limited to LONG_MAX.
+
+'multiply'
+    The multiply routine may yield incorrect results if a number has more than LONG_MAX / 90 total digits. For 32 bit longs, this number is 23,860,929 digits.
+
+'variable names'
+    The current limit on the number of unique names is 32767 for each of simple variables, arrays and functions.
+
+10 Environment Variables 环境变量（不翻译）
+************************
+File: bc.info, Node: Environment Variables, Prev: Limits, Up: Top
+
+The following environment variables are processed by 'bc':
+
+'POSIXLY_CORRECT'
+    This is the same as the -s option (*note Command Line Options::).
+
+'BC_ENV_ARGS'
+    This is another mechanism to get arguments to 'bc'. The format is the same as the command line arguments. These arguments are processed first, so any files listed in the environment arguments are processed before any command line argument files. This allows the user to set up "standard" options and files to be processed at every invocation of 'bc'. The files in the environment variables would typically contain function definitions for functions the user wants defined every time 'bc' is run.
+
+'BC_LINE_LENGTH'
+    This should be an integer specifying the number of characters in an output line for numbers. This includes the backslash and newline characters for long numbers. As an extension, the value of zero disables the multi-line feature. Any other value of this variable that is less than 3 sets the line length to 70.

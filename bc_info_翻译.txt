@@ -4,29 +4,29 @@ File: bc.info, Node: Top, Next: Introduction, Prev: (dir), Up: (dir)
 
 * Menu:
 
-* 1 Introduction::              				<== 介绍
-*   1.1 Description::               				<-- 简介
-*   1.2 Command Line Options::     					<-- 命令行选项
-* 2 Basic Elements::							<== 基础元素
-*   2.1 Numbers::									<-- 数字
-*   2.2 Variables::									<-- 变量
-*   2.3 Comments::									<-- 注释
-* 3 Expressions::								<== 表达式
-*   3.1 About Expressions and Special Variables::	<-- 表达式与特殊变量
-*   3.2 Basic Expressions::							<-- 基础表达式
-*   3.3 Relational Expressions::					<-- 关系表达式
-*   3.4 Boolean Expressions::						<-- 布尔表达式
-*   3.5 Precedence::								<-- 优先级
-*   3.6 Special Expressions::						<-- 特殊表达式
-* 4 Statements::								<== 语句
-*   4.1 Pseudo Statements::							<-- 伪语句
-* 5 Functions::									<== 函数
-*   5.1 Math Library Functions::					<-- 数学函数库
-* 6 Examples::									<== 范例
-* 7 Readline and Libedit Options::				<== 交互式（不翻译）
-* 8 Comparison with Other Implementations::		<== 版本区别（不翻译）
-* 9 Limits::									<== 限制（不翻译）
-* 10 Environment Variables::					<== 环境变量（不翻译）
+* 1 Introduction::                              <== 介绍
+*   1.1 Description::                               <-- 简介
+*   1.2 Command Line Options::                      <-- 命令行选项
+* 2 Basic Elements::                            <== 基础元素
+*   2.1 Numbers::                                   <-- 数字
+*   2.2 Variables::                                 <-- 变量
+*   2.3 Comments::                                  <-- 注释
+* 3 Expressions::                               <== 表达式
+*   3.1 About Expressions and Special Variables::   <-- 表达式与特殊变量
+*   3.2 Basic Expressions::                         <-- 基础表达式
+*   3.3 Relational Expressions::                    <-- 关系表达式
+*   3.4 Boolean Expressions::                       <-- 布尔表达式
+*   3.5 Precedence::                                <-- 优先级
+*   3.6 Special Expressions::                       <-- 特殊表达式
+* 4 Statements::                                <== 语句
+*   4.1 Pseudo Statements::                         <-- 伪语句
+* 5 Functions::                                 <== 函数
+*   5.1 Math Library Functions::                    <-- 数学函数库
+* 6 Examples::                                  <== 范例
+* 7 Readline and Libedit Options::              <== 交互式（不翻译）
+* 8 Comparison with Other Implementations::     <== 版本区别（不翻译）
+* 9 Limits::                                    <== 限制（不翻译）
+* 10 Environment Variables::                    <== 环境变量（不翻译）
 
 1 Introduction 介绍
 **************
@@ -52,8 +52,8 @@ File: bc.info, Node: Description, Next: Command Line Options, Prev: Introduction
     bc 自带一个数学函数库，想要使用的话，需要在调用 bc 时在命令行上添加 '-l' 选项。bc 会将数学库中的函数进行定义，然后再开始脚本的处理。
     bc 对于命令行上的文件的处理方式为，按照顺序依次处理命令行上指定的文件，然后再从 STDIN 中读取输入。
     所有的语句都是读取即处理。
-	同样，也就是说，如果不想让 bc 卡在读取 STDIN 的状态，只要将最后一个脚本文件的最后一个语句写为 'quit' 即可。
-	（也可以通过 'eof' 来退出 bc，如 echo 'XXXX' | bc，如 bc << EOF ）
+    同样，也就是说，如果不想让 bc 卡在读取 STDIN 的状态，只要将最后一个脚本文件的最后一个语句写为 'quit' 即可。
+    （也可以通过 'eof' 来退出 bc，如 echo 'XXXX' | bc，如 bc << EOF ）
 
     This version of 'bc' contains several extensions beyond traditional 'bc' implementations and the POSIX draft standard. Command line options can cause these extensions to print a warning or to be rejected. This document describes the language accepted by this processor. Extensions will be identified as such.
     （不翻译）
@@ -113,7 +113,7 @@ The most basic element in 'bc' is the number. Numbers are arbitrary precision nu
 bc 中最基础的元素就是数字。
 bc 默认支持无限精度的数字。不过会对乘法和除法的结果进行小数点后 20 位的截断。
 bc 内部使用十进制表示所有的数，所有的计算也是按照十进制进行。
-数字有两个熟悉，长度 length 和范围 scale。
+数字有两个属性，长度 length 和范围 scale。
 长度 length 指的是数字的有效数字的位数。
 范围 scale 指的是小数点之后的位数。
 
@@ -193,63 +193,64 @@ Unless specifically mentioned the scale of the result is the maximum scale of th
 
     '- expr'
         The result is the negation of the expression.
-		结果为表达式的负值
+        结果为表达式的负值
 
     '++ VAR'
         The variable is incremented by one and the new value is the result of the expression.
-		先自增 1，结果为表达式的结果
+        先自增 1，结果为表达式的结果
 
     '-- VAR'
         The variable is decremented by one and the new value is the result of the expression.
-		先自减 1，结果为表达式的结果
+        先自减 1，结果为表达式的结果
 
     'VAR ++'
         The result of the expression is the value of the variable and then the variable is incremented by one.
-		表达式的结果为变量的值，变量再自增 1
+        表达式的结果为变量的值，变量再自增 1
 
     'VAR --'
         The result of the expression is the value of the variable and then the variable is decremented by one.
-		表达式的结果为变量的值，变量再自减 1
+        表达式的结果为变量的值，变量再自减 1
 
     'expr + expr'
         The result of the expression is the sum of the two expressions.
-		求和
+        求和
 
     'expr - expr'
         The result of the expression is the difference of the two expressions.
-		求差
+        求差
 
     'expr * expr'
         The result of the expression is the product of the two expressions. If a and b are the scales of the two expressions, then the scale of the result is: min(a+b,max(SCALE,a,b))
-		求积
-		（关于 scale 部分不翻译了，懂得都懂）
-		
+        求积
+        （关于 scale 部分不翻译了，懂得都懂）
+        
     'expr / expr'
         The result of the expression is the quotient of the two expressions. The scale of the result is the value of the variable 'scale'
-		求商。
-		scale 使用 scale 变量的设置
+        求商。
+        scale 使用 scale 变量的设置
 
     'expr % expr'
         The result of the expression is the "remainder" and it is computed in the following way. To compute a%b, first a/b is computed to SCALE digits. That result is used to compute a-(a/b)*b to the scale of the maximum of SCALE+scale(b) and scale(a). If SCALE is set to zero and both expressions are integers this expression is the integer remainder function.
-		求余。
+        求余。
+        （只在手动指定 scale=0 并且两个数都是整数时才有意义）
 
     'expr ^ expr'
         The result of the expression is the value of the first raised to the second. The second expression must be an integer. (If the second expression is not an integer, a warning is generated and the expression is truncated to get an integer value.) The scale of the result is SCALE if the exponent is negative. If the exponent is positive the scale of the result is the minimum of the scale of the first expression times the value of the exponent and the maximum of SCALE and the scale of the first expression. (e.g. scale(a^b) = min(scale(a)*b, max(SCALE, scale(a))).) It should be noted that expr^0 will always return the value of 1.
-		求幂。
-		要求指数必须是整数，可以是负数。
-		（后面关于 scale 的部分，不翻译）
+        求幂。
+        要求指数必须是整数，可以是负数。
+        （后面关于 scale 的部分，不翻译）
 
     '( expr )'
         This alters the standard precedence to force the evaluation of the expression.
-		括号
+        括号
 
     'VAR = expr'
         The variable is assigned the value of the expression.
-		变量赋值
+        变量赋值
 
     'VAR <op>= expr'
         This is equivalent to "VAR = VAR <op> expr" with the exception that the "VAR" part is evaluated only once. This can make a difference if "VAR" is an array.
-		变量的自操作
+        变量的自操作
 
 3.3 Relational Expressions 关系表达式
 ==========================
@@ -264,29 +265,29 @@ true 返回 1，false 返回 0
 
     'expr1 < expr2'
         The result is 1 if expr1 is strictly less than expr2.
-		小于
+        小于
 
     'expr1 <= expr2'
         The result is 1 if expr1 is less than or equal to expr2.
-		小于等于
+        小于等于
 
     'expr1 > expr2'
         The result is 1 if expr1 is strictly greater than expr2.
-		大于
+        大于
 
     'expr1 >= expr2'
         The result is 1 if expr1 is greater than or equal to expr2.
-		大于等于
+        大于等于
 
     'expr1 == expr2'
         The result is 1 if expr1 is equal to expr2.
-		等于
+        等于
 
     'expr1 != expr2'
         The result is 1 if expr1 is not equal to expr2.
-		不等于
+        不等于
 
-3.4 Boolean Expressions
+3.4 Boolean Expressions 布尔表达式
 =======================
 File: bc.info, Node: Boolean Expressions, Next: Precedence, Prev: Relational Expressions, Up: Expressions
 
@@ -296,15 +297,15 @@ Boolean operations are also legal. (POSIX 'bc' does NOT have boolean operations)
 
     '!expr'
         The result is 1 if expr is 0.
-		非
+        非
 
     'expr && expr'
         The result is 1 if both expressions are non-zero.
-		与
+        与
 
     'expr || expr'
         The result is 1 if either expression is non-zero.
-		或
+        或
 
 3.5 Precedence
 ==============
@@ -324,17 +325,17 @@ The expression precedence is as follows: (lowest to highest)
     ++ and -- operators, nonassociative
 
 bc 中运算符的优先级，由高到低：
-	++ --，无结合
-	负号，无结合
-	^ ，右结合
-	*/%，左结合
-	+-，左结合
-	赋值运算符，右结合
-	关系运算符，左结合
-	! ，无结合
-	&&，左结合
-	||，左结合
-	
+    ++ --，无结合
+    负号，无结合
+    ^ ，右结合
+    */%，左结合
+    +-，左结合
+    赋值运算符，右结合
+    关系运算符，左结合
+    ! ，无结合
+    &&，左结合
+    ||，左结合
+    
 This precedence was chosen so that POSIX compliant 'bc' programs will run correctly. This will cause the use of the relational and logical operators to have some unusual behavior when used with assignment expressions. Consider the expression: a = 3 < 5, Most C programmers would assume this would assign the result of "3 < 5" (the value 1) to the variable "a". What this does in 'bc' is assign the value 3 to the variable "a" and then compare 3 to 5. It is best to use parentheses when using relational and logical operators with the assignment operators.
 （不翻译）
 （一个是解释了为什么采用这种顺序的优先级）
@@ -350,21 +351,21 @@ There are a few more special expressions that are provided in 'bc'. These have t
 
     'length ( expression )'
         The value of the length function is the number of significant digits in the expression.
-		返回参数的有效数字的位数
+        返回参数的有效数字的位数
 
     'read ( )'
         The 'read' function (an extension) will read a number from the standard input, regardless of where the function occurs. Beware, this can cause problems with the mixing of data and program in the standard input. The best use for this function is in a previously written program that needs input from the user, but never allows program code to be input from the user. The value of the 'read' function is the number read from the standard input using the current value of the variable IBASE for the conversion base.
-		（不翻译）
-		（用来从 STDIN 中读取用户的输入，作用是用在不允许从 STDIN 中获取用户输入的程序中读取用户的输入）
-		（脱裤子放屁）
+        （不翻译）
+        （用来从 STDIN 中读取用户的输入，作用是用在不允许从 STDIN 中获取用户输入的程序中读取用户的输入）
+        （脱裤子放屁）
 
     'scale ( expression )'
         The value of the 'scale' function is the number of digits after the decimal point in the expression.
-		返回参数的小数的位数
+        返回参数的小数的位数
 
     'sqrt ( expression )'
         The value of the 'sqrt' function is the square root of the expression. If the expression is negative, a run time error is generated.
-		返回参数的平方根，参数不可以是负数
+        返回参数的平方根，参数不可以是负数
 
 4 Statements
 ************
@@ -383,61 +384,61 @@ bc 将 newline 和 ';' 视为语句分隔符。
 EXPRESSION
     This statement does one of two things. If the expression starts with "<variable> <assignment> ...", it is considered to be an assignment statement. If the expression is not an assignment statement, the expression is evaluated and printed to the output. After the number is printed, a newline is printed. For example,
     "a=1" is an assignment statement and "(a=1)" is an expression that has an embedded assignment. 
-	bc 中，表达式有两种工作方式。
-	一个是赋值，此时仅进行赋值，不会进行打印。
-	一个是计算，此时 bc 会对表达式进行计算，将结果打印出来，并追加一个 newline。
-	需要注意的是，'a=2' 是赋值，而 '(a=2)' 被 bc 识别为计算，即使 a 依然被赋值了。
-	
-	All numbers that are printed are printed in the base specified by the variable OBASE. The legal values for OBASE are 2 through BC_BASE_MAX (*note Environment Variables::). For bases 2 through 16, the usual method of writing numbers is used. For bases greater than 16, 'bc' uses a multi-character digit method of printing the numbers where each higher base digit is printed as a base 10 number. The multi-character digits are separated by spaces. Each digit contains the number of characters required to represent the base ten value of "OBASE -1". 
-	在打印时，OBASE 的影响是明显的。
-	OBASE 的取值范围为 2 到 BC_BASE_MAX 的规定，目前 BC_BASE_MAX 的规定为 999。
-	如果 OBASE 的取值小于 16，则对于大于 10 的数字，bc 采用 ABCDEF 来表示。
-	如果 OBASE 的取值大于 16，则 bc 会采用 multi-character 的方式来表示。
-	所谓 multi-character，即使用两个或多个十进制的 0-9，来表示结果中的一位数。结果的每一位数，都采用 space 进行间隔。
-	
-	Since numbers are of arbitrary precision, some numbers may not be printable on a single output line. These long numbers will be split across lines using the "\" as the last character on a line. The maximum number of characters printed per line is 70. 
-	bc 在打印时，每行最多打印 70 个字符。
-	由于 bc 支持无限精度，因此有可能一个数一行打印不完，此时 bc 采用 '\' 来进行续行。
-	
-	Due to the interactive nature of 'bc', printing a number causes the side effect of assigning the printed value to the special variable LAST. This allows the user to recover the last value printed without having to retype the expression that printed the number. Assigning to LAST is legal and will overwrite the last printed value with the assigned value. The newly assigned value will remain until the next number is printed or another value is assigned to LAST. (Some installations may allow the use of a single period (.) which is not part of a number as a short hand notation for for LAST.)
-	bc 在打印时，会自动将数字储存在 LAST 变量。
-	LAST 变量的好处是，当需要使用上一次打印的数字时用得到。
-	bc 支持对 LAST 变量进行赋值，但如果 bc 再次发生了打印，则 LAST 变量又会被覆盖。
-	
+    bc 中，表达式有两种工作方式。
+    一个是赋值，此时仅进行赋值，不会进行打印。
+    一个是计算，此时 bc 会对表达式进行计算，将结果打印出来，并追加一个 newline。
+    需要注意的是，'a=2' 是赋值，而 '(a=2)' 被 bc 识别为计算，即使 a 依然被赋值了。
+    
+    All numbers that are printed are printed in the base specified by the variable OBASE. The legal values for OBASE are 2 through BC_BASE_MAX (*note Environment Variables::). For bases 2 through 16, the usual method of writing numbers is used. For bases greater than 16, 'bc' uses a multi-character digit method of printing the numbers where each higher base digit is printed as a base 10 number. The multi-character digits are separated by spaces. Each digit contains the number of characters required to represent the base ten value of "OBASE -1". 
+    在打印时，OBASE 的影响是明显的。
+    OBASE 的取值范围为 2 到 BC_BASE_MAX 的规定，目前 BC_BASE_MAX 的规定为 999。
+    如果 OBASE 的取值小于 16，则对于大于 10 的数字，bc 采用 ABCDEF 来表示。
+    如果 OBASE 的取值大于 16，则 bc 会采用 multi-character 的方式来表示。
+    所谓 multi-character，即使用两个或多个十进制的 0-9，来表示结果中的一位数。结果的每一位数，都采用 space 进行间隔。
+    
+    Since numbers are of arbitrary precision, some numbers may not be printable on a single output line. These long numbers will be split across lines using the "\" as the last character on a line. The maximum number of characters printed per line is 70. 
+    bc 在打印时，每行最多打印 70 个字符。
+    由于 bc 支持无限精度，因此有可能一个数一行打印不完，此时 bc 采用 '\' 来进行续行。
+    
+    Due to the interactive nature of 'bc', printing a number causes the side effect of assigning the printed value to the special variable LAST. This allows the user to recover the last value printed without having to retype the expression that printed the number. Assigning to LAST is legal and will overwrite the last printed value with the assigned value. The newly assigned value will remain until the next number is printed or another value is assigned to LAST. (Some installations may allow the use of a single period (.) which is not part of a number as a short hand notation for for LAST.)
+    bc 在打印时，会自动将数字储存在 LAST 变量。
+    LAST 变量的好处是，当需要使用上一次打印的数字时用得到。
+    bc 支持对 LAST 变量进行赋值，但如果 bc 再次发生了打印，则 LAST 变量又会被覆盖。
+    
 STRING
     The string is printed to the output. Strings start with a double quote character and contain all characters until the next double quote character. All characters are taken literally, including any newline. No newline character is printed after the string.
-	bc 支持字符串。
-	字符串的表示方式为，位于两个双引号 " " 之间，无论是什么符号。所以，即使 " " 中包含 newline，bc 也会认为 newline 是字符串的一部分。
-	（这点是与 shell 语言不同的地方）
-	字符串会被正常的打印出来。
-	打印字符串时，不会在末尾追加 newline。
+    bc 支持字符串。
+    字符串的表示方式为，位于两个双引号 " " 之间，无论是什么符号。所以，即使 " " 中包含 newline，bc 也会认为 newline 是字符串的一部分。
+    （这点是与 shell 语言不同的地方）
+    字符串会被正常的打印出来。
+    打印字符串时，不会在末尾追加 newline。
 
 'PRINT' LIST
     The 'print' statement (an extension) provides another method of output. The LIST is a list of strings and expressions separated by commas. Each string or expression is printed in the order of the list. No terminating newline is printed. Expressions are evaluated and their value is printed and assigned to the variable 'last'. 
-	print 语句是 bc 提供的另一种打印到 output 的方法。
-	print 会将 LIST 中的内容打印出来。
-	pirnt 打印的结果，不会在末尾追加 newline。
-	LIST 中的项，可以是表达式，也可以是字符串。
-	对于表达式，bc 会先进行计算，然后打印计算的结果，并储存在 LAST 变量中。
-	
-	Strings in the print statement are printed to the output and may contain special characters. Special characters start with the backslash character (\e). The special characters recognized by 'bc' are "a" (alert or bell), "b" (backspace), "f" (form feed), "n" (newline), "r" (carriage return), "q" (double quote), "t" (tab), and "\e" (backslash). Any other character following the backslash will be ignored.
-	字符串只有放在 print 语句中时，才可以使用跳脱快捷键。
-	支持的跳脱快捷键有：\a、\b、\e、\f、\n、\r、\q、\t。
-	
+    print 语句是 bc 提供的另一种打印到 output 的方法。
+    print 会将 LIST 中的内容打印出来。
+    pirnt 打印的结果，不会在末尾追加 newline。
+    LIST 中的项，可以是表达式，也可以是字符串。
+    对于表达式，bc 会先进行计算，然后打印计算的结果，并储存在 LAST 变量中。
+    
+    Strings in the print statement are printed to the output and may contain special characters. Special characters start with the backslash character (\e). The special characters recognized by 'bc' are "a" (alert or bell), "b" (backspace), "f" (form feed), "n" (newline), "r" (carriage return), "q" (double quote), "t" (tab), and "\e" (backslash). Any other character following the backslash will be ignored.
+    字符串只有放在 print 语句中时，才可以使用跳脱快捷键。
+    支持的跳脱快捷键有：\a、\b、\e、\f、\n、\r、\q、\t。
+    
 
 { STATEMENT_LIST }
     This is the compound statement. It allows multiple statements to be grouped together for execution.
-	bc 支持语句组合，使用大括号 { }。
-	对于组合的语句，bc 时一起执行的。
+    bc 支持语句组合，使用大括号 { }。
+    对于组合的语句，bc 时一起执行的。
 
 'IF' ( EXPRESSION ) STATEMENT1 ['ELSE' STATEMENT2]
     The if statement evaluates the expression and executes statement1 or statement2 depending on the value of the expression. If the expression is non-zero, statement1 is executed. If statement2 is present and the value of the expression is 0, then statement2 is executed. (The 'else' clause is an extension.)
-	bc 支持 if 语句（但似乎不支持 elseif）。
-	对于条件，bc 视 non-0 为 true，视 0 为 false。
+    bc 支持 if 语句（但似乎不支持 elseif）。
+    对于条件，bc 视 non-0 为 true，视 0 为 false。
 
 'WHILE' ( EXPRESSION ) STATEMENT
     The while statement will execute the statement while the expression is non-zero. It evaluates the expression before each execution of the statement. Termination of the loop is caused by a zero expression value or the execution of a 'break' statement.
-	bc 支持 while 语句。
+    bc 支持 while 语句。
 
 'FOR' ( [EXPRESSION1] ; [EXPRESSION2] ; [EXPRESSION3] ) STATEMENT
     The 'for' statement controls repeated execution of the statement. EXPRESSION1 is evaluated before the loop. EXPRESSION2 is evaluated before each execution of the statement. If it is non-zero, the statement is evaluated. If it is zero, the loop is terminated. After each execution of the statement, EXPRESSION3 is evaluated before the reevaluation of expression2. If EXPRESSION1 or EXPRESSION3 are missing, nothing is evaluated at the point they would be evaluated. If EXPRESSION2 is missing, it is the same as substituting the value 1 for EXPRESSION2. (The optional expressions are an extension. POSIX 'bc' requires all three expressions.) The following is equivalent code for the 'for' statement:
@@ -447,36 +448,36 @@ STRING
             statement;
             expression3;
         }
-	bc 支持 for 循环。
-	bc 的 for 循环与其他的 for 循环有一些不同。
-	expression_1 是初始表达式，在执行 for 循环之前进行运算。
-	expression_2 是条件表达式，在 for 循环的每一次迭代之前进行运算，non-0 则进行下一轮迭代，0 则退出循环。
-	expression_3 是末尾表达式，在 for 循环的每一次迭代之中，作为最后一个语句使用。
-	虽然不推荐，但 bc 是允许这三个表达式缺失的。（POSIX bc 则要求三个表达式都必须存在）
-	expression_1 和 expression_3 缺失了，只是相当于省略了相应位置的运算。
-	expression_2 如果缺失，相当于 1，即死循环。（此时需要 break 语句）
-	（bc 的 for 循序等价于此处所写的 while 循环）
+    bc 支持 for 循环。
+    bc 的 for 循环与其他的 for 循环有一些不同。
+    expression_1 是初始表达式，在执行 for 循环之前进行运算。
+    expression_2 是条件表达式，在 for 循环的每一次迭代之前进行运算，non-0 则进行下一轮迭代，0 则退出循环。
+    expression_3 是末尾表达式，在 for 循环的每一次迭代之中，作为最后一个语句使用。
+    虽然不推荐，但 bc 是允许这三个表达式缺失的。（POSIX bc 则要求三个表达式都必须存在）
+    expression_1 和 expression_3 缺失了，只是相当于省略了相应位置的运算。
+    expression_2 如果缺失，相当于 1，即死循环。（此时需要 break 语句）
+    （bc 的 for 循序等价于此处所写的 while 循环）
 
 'BREAK'
     This statement causes a forced exit of the most recent enclosing 'while' statement or 'for' statement.
-	bc 支持 break 语句，可以用来退出 while 或者 for 循环。
+    bc 支持 break 语句，可以用来退出 while 或者 for 循环。
 
 'CONTINUE'
     The 'continue' statement (an extension) causes the most recent enclosing 'for' statement to start the next iteration.
-	bc 支持 continue 语句。
+    bc 支持 continue 语句。
 
 'HALT'
     The 'halt' statement (an extension) is an executed statement that causes the 'bc' processor to quit only when it is executed. For example, "if (0 == 1) halt" will not cause 'bc' to terminate because the 'halt' is not executed.
-	bc 提供的一个软退出功能。
-	只有 halt 部分被执行了，才会退出 bc 的处理，因此 halt 配合 if 使用效果明显。
+    bc 提供的一个软退出功能。
+    只有 halt 部分被执行了，才会退出 bc 的处理，因此 halt 配合 if 使用效果明显。
 
 'RETURN'
     Return the value 0 from a function. (*Note Functions::.)
-	对于 bc 的函数，返回 0
+    对于 bc 的函数，返回 0
 
 'RETURN' ( EXPRESSION )
     Return the value of the expression from a function. (*Note Functions::.) As an extension, the parenthesis are not required.
-	对于 bc 的 函数，返回表达式的计算结果
+    对于 bc 的 函数，返回表达式的计算结果
 
 4.1 Pseudo Statements 伪语句
 =====================
@@ -487,15 +488,15 @@ These statements are not statements in the traditional sense. They are not execu
 
 'limits'
     Print the local limits enforced by the local version of 'bc'. This is an extension.
-	打印当前 bc 的一些限制。
+    打印当前 bc 的一些限制。
 
 'quit'
     When the 'quit' statement is read, the 'bc' processor is terminated, regardless of where the 'quit' statement is found. For example, "if (0 == 1) quit" will cause 'bc' to terminate.
-	强制退出。
+    强制退出。
 
 'warranty'
     Print a longer warranty notice. This is an extension.
-	输出一个警告信息
+    输出一个警告信息
 
 5 Functions 函数
 ***********
@@ -572,27 +573,27 @@ If 'bc' is invoked with the '-l' option, a math library is preloaded and the def
 
 's (X)'
     The sine of X, X is in radians.
-	求 X 的 sin 值，X 为弧度
+    求 X 的 sin 值，X 为弧度
 
 'c (X)'
     The cosine of X, X is in radians.
-	求 X 的 cos 值，X 为弧度
+    求 X 的 cos 值，X 为弧度
 
 'a (X)'
     The arctangent of X, arctangent returns radians.
-	求 X 的 arctan 值，返回弧度
+    求 X 的 arctan 值，返回弧度
 
 'l (X)'
     The natural logarithm of X.
-	求 X 的自然对数
+    求 X 的自然对数
 
 'e (X)'
     The exponential function of raising E to the value X.
-	求 X 的自然指数
+    求 X 的自然指数
 
 'j (N,X)'
     The Bessel function of integer order N of X.
-	求 X 的贝塞尔函数值
+    求 X 的贝塞尔函数值
 
 6 Examples 范例
 **********
